@@ -716,7 +716,7 @@ savePlayer = function(id){
 	});	
 }
 moreAdminSearch = function(ct){
-	var lct = $('#search_admin_list .sub_list_item:last').attr('id');
+	var lct = $('#search_admin_list .sub_list_item').last().attr('id');
 	lastCt = lct.replace('found', '');	
 	$.post('system/action/action_search.php', {
 		more_search_critera: ct,
@@ -856,10 +856,10 @@ flushCache = function(){
 }
 reloadSystemConsole = function(){
 	var systemConsoleState = $('#search_system_console').val();
-	if($('#console_logs_box:visible').length && systemConsoleState == ''){
+	if($('#console_logs_box').is(':visible') && systemConsoleState == ''){
 		var lastConsole = 0;
 		if($('.console_item').length > 0){
-			lastConsole = $('#console_results .console_item:first').attr('value');
+			lastConsole = $('#console_results .console_item').first().attr('value');
 		}
 		$.post('system/action/system_console.php', {
 			reload_console: lastConsole,

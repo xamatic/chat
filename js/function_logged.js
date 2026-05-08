@@ -232,7 +232,7 @@ registerModal = function(v){
 	}
 }
 checkModal = function(){
-	if(systemLoaded == 0 || modalList.length === 0 || $('.modal_back:visible').length){
+	if(systemLoaded == 0 || modalList.length === 0 || $('.modal_back').filter(':visible').length){
 		return false;
 	}
 	else {
@@ -600,21 +600,188 @@ getPublicThemeHub = function(){
 }
 showPublicThemeMarket = function(){
 	$('#public_theme_view_builder').addClass('fhide');
+	$('#public_theme_view_moderator').addClass('fhide')
 	$('#public_theme_view_market').removeClass('fhide');
 	$('#public_theme_nav_builder').removeClass('theme_btn active').addClass('default_btn');
+	$('#public_theme_nav_moderator').removeClass('theme_btn active').addClass('default_btn');
 	$('#public_theme_nav_market').removeClass('default_btn').addClass('theme_btn active');
+	sortPublicThemeCards();
+}
+
+sortPublicThemeCards = function(mode) {
+    const sortMode = mode || ($('#public_theme_sort_mode').val() || 'installs');
+    const $grid = $('.public_theme_card_grid');
+    const $picker = $('#public_color_picker');
+
+    // 1. UI Logic: Show/Hide picker
+    sortMode === 'color' ? $picker.show() : $picker.hide();
+
+    // 2. Data Prep: Get cards and "cache" their data
+    // This avoids calling getComputedStyle hundreds of times
+    const cardData = $grid.children('.public_theme_card').map(function() {
+        const $el = $(this);
+        let rgb = [0, 0, 0];
+        
+        if (sortMode === 'color') {
+            const style = window.getComputedStyle(this);
+            rgb = (style.backgroundColor.match(/\d+/g) || [0, 0, 0]).map(Number);
+        }
+
+        return {
+            el: this,
+            name: ($el.attr('data-name') || '').toLowerCase(),
+            installs: parseInt($el.attr('data-installs'), 10) || 0,
+            rating: parseFloat($el.attr('data-rating')) || 0,
+            reviewed: parseInt($el.attr('data-reviewed'), 10) || 0,
+            rgb: rgb
+        };
+    }).get();
+
+    // 3. Sorting Logic (Fast because it's just objects, no DOM)
+    if (sortMode === 'color') {
+        const target = $picker.val().match(/[A-Za-z0-9]{2}/g).map(x => parseInt(x, 16));
+        cardData.sort((a, b) => {
+            const distA = Math.sqrt(a.rgb.reduce((sum, v, i) => sum + Math.pow(v - target[i], 2), 0));
+            const distB = Math.sqrt(b.rgb.reduce((sum, v, i) => sum + Math.pow(v - target[i], 2), 0));
+            return distA - distB;
+        });
+    } else {
+        cardData.sort((a, b) => {
+            if (sortMode === 'name') return a.name.localeCompare(b.name);
+            if (sortMode === 'recent') return b.reviewed - a.reviewed;
+            if (sortMode === 'rating') return b.rating - a.rating;
+            return b.installs - a.installs;
+        });
+    }
+
+    // 4. Batch Update: Only touch the DOM once
+    const sortedElements = cardData.map(item => item.el);
+    $grid.append(sortedElements);
+};
+
+
+refreshPublicThemeStars = function(themeId, myRate){
+	myRate = parseInt(myRate, 10) || 0;
+	$('.public_theme_rate_row[data-theme-id="' + themeId + '"]').each(function(){
+		var row = $(this);
+		row.attr('data-my-rate', myRate);
+		row.find('.public_theme_rate_star').each(function(index){
+			var star = $(this);
+			if((index + 1) <= myRate){
+				star.addClass('active');
+			}
+			else {
+				star.removeClass('active');
+			}
+		});
+	});
+}
+updatePublicThemeRatingDisplay = function(themeId, avg, count, myRate){
+	var avgText = (parseFloat(avg) || 0).toFixed(1);
+	count = parseInt(count, 10) || 0;
+	$('.public_theme_card[data-theme-id="' + themeId + '"]').each(function(){
+		var card = $(this);
+		card.attr('data-rating', avgText);
+		card.attr('data-rate-count', count);
+		card.find('.public_theme_rating_avg').text(avgText);
+		card.find('.public_theme_rating_count').text('(' + count + ')');
+	});
+	refreshPublicThemeStars(themeId, myRate);
+	sortPublicThemeCards();
+}
+updatePublicThemeInstallDisplay = function(themeId, installs, markInstalled){
+	installs = parseInt(installs, 10) || 0;
+	$('.public_theme_card[data-theme-id="' + themeId + '"]').each(function(){
+		var card = $(this);
+		card.attr('data-installs', installs);
+		card.find('.public_theme_install_count').text(installs);
+		if(markInstalled){
+			if(!card.find('.public_theme_installed_tag').length){
+				card.find('.public_theme_card_meta').append('<div class="public_theme_installed_tag">Installed</div>');
+			}
+		}
+	});
+	sortPublicThemeCards();
+}
+ratePublicTheme = function(themeId, rateValue){
+	themeId = parseInt(themeId, 10);
+	rateValue = parseInt(rateValue, 10);
+	if(!themeId || !rateValue || rateValue < 1 || rateValue > 5){
+		return;
+	}
+	$.post('system/action/action_public_theme.php', {
+		rate_public_theme: 1,
+		theme_id: themeId,
+		theme_rate: rateValue,
+	}, function(response){
+		if(response.code == 1){
+			updatePublicThemeRatingDisplay(themeId, response.rate_avg, response.rate_count, response.my_rate);
+			callSuccess('Rating saved.');
+		}
+		else if(response.code == 2){
+			callError('Theme not available.');
+		}
+		else if(response.code == 3){
+			callError('Choose a rating from 1 to 5.');
+		}
+		else {
+			callError(system.error);
+		}
+	}, 'json');
 }
 showPublicThemeBuilder = function(){
 	if(!$('#public_theme_view_builder').length){
 		return;
 	}
 	$('#public_theme_view_market').addClass('fhide');
+	$('#public_theme_view_moderator').addClass('fhide');
 	$('#public_theme_view_builder').removeClass('fhide');
+	$('#public_theme_nav_moderator').removeClass('theme_btn active').addClass('default_btn');
 	$('#public_theme_nav_market').removeClass('theme_btn active').addClass('default_btn');
 	$('#public_theme_nav_builder').removeClass('default_btn').addClass('theme_btn active');
 	setTimeout(function(){
 		initPublicThemeBuilder();
 	}, 20);
+}
+
+showPublicThemeModeration = function(){
+	$('#public_theme_view_builder').addClass('fhide');
+	$('#public_theme_view_market').addClass('fhide');
+	$('#public_theme_view_moderator').removeClass('fhide');
+	$('#public_theme_nav_builder').removeClass('theme_btn active').addClass('default_btn');
+	$('#public_theme_nav_market').removeClass('theme_btn active').addClass('default_btn');
+	$('#public_theme_nav_moderator').removeClass('default_btn').addClass('theme_btn active');
+}
+
+openPublicThemeBuilderTheme = function(themeId){
+	themeId = parseInt(themeId, 10);
+	if(isNaN(themeId) || themeId < 1){
+		return;
+	}
+	if(typeof getPublicThemeLeft === 'function'){
+		getPublicThemeLeft('builder', themeId, 0);
+		return;
+	}
+	getPublicThemeHub();
+}
+openNewPublicThemeBuilder = function(){
+	if(typeof getPublicThemeLeft === 'function'){
+		getPublicThemeLeft('builder', 0, 1);
+		return;
+	}
+	getPublicThemeHub();
+}
+editOwnedPublicTheme = function(themeId){
+	themeId = parseInt(themeId, 10);
+	if(!themeId){
+		return;
+	}
+	if(typeof getPublicThemeLeft === 'function'){
+		callSuccess('Editing this theme will overwrite it. Submit to send the update back to moderation.');
+		getPublicThemeLeft('builder', themeId, 0, 1);
+		return;
+	}
+	getPublicThemeHub();
 }
 publicThemeIsLocked = function(){
 	if(!$('#public_theme_builder').length){
@@ -665,8 +832,21 @@ publicThemeCssSafe = function(css){
 	}
 	return css;
 }
+publicThemeResolveBackground = function(background){
+	background = $.trim(String(background || ''));
+	if(background == ''){
+		return '';
+	}
+	var link = document.createElement('a');
+	link.href = background;
+	return link.href;
+}
 collectPublicThemeData = function(){
 	var themeName = $.trim($('#public_theme_name').val());
+	var themeId = parseInt($('#public_theme_id').val(), 10);
+	if(isNaN(themeId) || themeId < 1){
+		themeId = 0;
+	}
 	if(themeName.length > 32){
 		themeName = themeName.substring(0, 32);
 	}
@@ -674,6 +854,8 @@ collectPublicThemeData = function(){
 		themeName = 'My Public Theme';
 	}
 	return {
+		theme_id: themeId,
+		overwrite_theme: parseInt($('#public_theme_overwrite').val(), 10) || 0,
 		theme_name: themeName,
 		header_bg: publicThemeColor($('#public_theme_header_bg').val(), '#111827'),
 		header_text: publicThemeColor($('#public_theme_header_text').val(), '#FFFFFF'),
@@ -694,7 +876,7 @@ buildPublicThemeLiveCss = function(theme){
 	var lineSoft = publicThemeHexToRgba(theme.header_text, 0.14);
 	var hoverSoft = publicThemeHexToRgba(theme.header_text, 0.10);
 	var inputBg = publicThemeHexToRgba(theme.header_text, 0.06);
-	var bg = String(theme.theme_background || '').replace(/'/g, '%27');
+	var bg = String(publicThemeResolveBackground(theme.theme_background) || '').replace(/'/g, '%27');
 	var css = '';
 	css += '@import url("css/themes/Lite/Lite.css' + bbfv + '");';
 	css += 'a{color:' + theme.accent + ';}';
@@ -705,7 +887,7 @@ buildPublicThemeLiveCss = function(theme){
 	css += '}';
 	css += 'input,textarea,.post_input_container{background:' + inputBg + ';border:1px solid ' + lineSoft + ' !important;color:' + theme.chat_text + ';}';
 	css += '.setdef,.default_color,.user{color:' + theme.chat_text + ';}';
-	css += '.bhead,.bsidebar,.modal_top,.pro_top,.bfoot,.foot,.back_pmenu,.back_ptop{background:' + theme.header_bg + ';color:' + theme.header_text + ';}';
+	css += '.bhead,.bsidebar,.modal_top,.pro_top,.bfoot,.foot,.back_pmenu,.back_ptop{background:' + theme.header_bg + ';color:' + theme.header_text + ';fill:' + theme.header_text + ';}';
 	css += '.theme_color,.menui,.subi{color:' + theme.accent + ';}';
 	css += '.theme_btn,.back_theme,.my_notice{background:' + theme.accent + ';color:' + theme.header_text + ';}';
 	css += '.default_btn,.back_default,.defaultd_btn,.send_btn{background:' + theme.default_btn + ';color:' + theme.header_text + ';}';
@@ -719,7 +901,7 @@ buildPublicThemeLiveCss = function(theme){
 	css += '.bshadow,.page_element,.float_menu,.btnshadow,.pboxed,.tab_menu{box-shadow:0 8px 24px rgba(0,0,0,0.35);}';
 	css += '.modal_back{background-color:rgba(0,0,0,0.55);}';
 	if(parseInt(theme.panel_blur, 10) > 0){
-		css += '.backglob,.back_chat,.back_priv,.back_panel,.back_menu,.back_box,.back_input,.back_modal,.page_element,.back_quote{backdrop-filter:blur(' + parseInt(theme.panel_blur, 10) + 'px);-webkit-backdrop-filter:blur(' + parseInt(theme.panel_blur, 10) + 'px);}';
+		css += '.back_chat,.back_priv,.back_panel,.back_menu,.back_box,.back_input,.back_modal,.page_element,.back_quote{backdrop-filter:blur(' + parseInt(theme.panel_blur, 10) + 'px);-webkit-backdrop-filter:blur(' + parseInt(theme.panel_blur, 10) + 'px);}';
 	}
 	if(theme.theme_custom_css != ''){
 		css += theme.theme_custom_css;
@@ -741,7 +923,8 @@ applyPublicThemeLivePreview = function(){
 	$('#public_theme_panel_opacity_value').text(theme.panel_opacity);
 	$('#public_theme_panel_blur_value').text(theme.panel_blur + 'px');
 	$('#public_theme_live_name').text(theme.theme_name);
-	$('#public_theme_bg_state').text(theme.theme_background != '' ? 'Background ready' : 'No background uploaded');
+	var bgUrl = publicThemeResolveBackground(theme.theme_background);
+	$('#public_theme_bg_state').text(bgUrl != '' ? 'Background ready' : 'No background uploaded');
 
 	var preview = $('#public_theme_live_preview');
 	if(preview.length){
@@ -754,14 +937,15 @@ applyPublicThemeLivePreview = function(){
 		preview.css('--pt-default', theme.default_btn);
 		preview.css('--pt-opacity', theme.panel_opacity);
 		preview.css('--pt-blur', parseInt(theme.panel_blur, 10) + 'px');
-		if(theme.theme_background != ''){
-			preview.css('--pt-bg-url', "url('" + String(theme.theme_background).replace(/'/g, '%27') + "')");
+		if(bgUrl != ''){
+			preview.css('--pt-bg-url', "url('" + String(bgUrl).replace(/'/g, '%27') + "')");
 		}
 		else {
 			preview.css('--pt-bg-url', 'none');
 		}
 	}
 }
+	
 initPublicThemeBuilder = function(){
 	if(!$('#public_theme_builder').length){
 		return;
@@ -770,13 +954,20 @@ initPublicThemeBuilder = function(){
 }
 savePublicThemeDraft = function(){
 	if(publicThemeIsLocked()){
-		callError('Approved themes are immutable.');
+		callError('Submitted themes are immutable.');
 		return;
 	}
 	var payload = collectPublicThemeData();
 	payload.save_public_theme = 1;
 	$.post('system/action/action_public_theme.php', payload, function(response){
 		if(response.code == 1){
+			if(response.theme_id){
+				$('#public_theme_id').val(response.theme_id);
+				$('#public_theme_builder').attr('data-theme-id', response.theme_id);
+			}
+			if(typeof response.locked !== 'undefined'){
+				$('#public_theme_builder').attr('data-locked', response.locked);
+			}
 			callSuccess('Draft saved.');
 		}
 		else if(response.code == 2){
@@ -786,7 +977,7 @@ savePublicThemeDraft = function(){
 			callError('VIP or higher rank is required to publish.');
 		}
 		else if(response.code == 5){
-			callError('Approved themes are immutable.');
+			callError('Submitted themes are immutable.');
 		}
 		else {
 			callError(system.error);
@@ -795,7 +986,7 @@ savePublicThemeDraft = function(){
 }
 submitPublicTheme = function(){
 	if(publicThemeIsLocked()){
-		callError('Approved themes are immutable.');
+		callError('Submitted themes are immutable.');
 		return;
 	}
 	var payload = collectPublicThemeData();
@@ -817,7 +1008,7 @@ submitPublicTheme = function(){
 			callError('VIP or higher rank is required to publish.');
 		}
 		else if(response.code == 5){
-			callError('Approved themes are immutable.');
+			callError('Submitted themes are immutable.');
 		}
 		else {
 			callError(system.error);
@@ -826,7 +1017,7 @@ submitPublicTheme = function(){
 }
 uploadPublicThemeBackground = function(){
 	if(publicThemeIsLocked()){
-		callError('Approved themes are immutable.');
+		callError('Submitted themes are immutable.');
 		return;
 	}
 	var input = $('#public_theme_bg_file')[0];
@@ -834,10 +1025,16 @@ uploadPublicThemeBackground = function(){
 		callError('Select an image file first.');
 		return;
 	}
+	var themeId = parseInt($('#public_theme_id').val(), 10);
+	if(isNaN(themeId) || themeId < 1){
+		themeId = 0;
+	}
 	var fd = new FormData();
 	fd.append('upload_public_theme_bg', 1);
 	fd.append('token', utk);
 	fd.append('cp', curPage);
+	fd.append('theme_id', themeId);
+	fd.append('overwrite_theme', parseInt($('#public_theme_overwrite').val(), 10) || 0);
 	fd.append('theme_background_file', input.files[0]);
 	$.ajax({
 		url: 'system/action/action_public_theme.php',
@@ -848,7 +1045,8 @@ uploadPublicThemeBackground = function(){
 		contentType: false,
 		success: function(response){
 			if(response.code == 1){
-				$('#public_theme_bg').val(response.background);
+				var bgValue = response.background ? response.background : response.url;
+				$('#public_theme_bg').val(bgValue);
 				$('#public_theme_bg_file').val('');
 				applyPublicThemeLivePreview();
 				callSuccess('Background uploaded.');
@@ -859,6 +1057,9 @@ uploadPublicThemeBackground = function(){
 			else if(response.code == 4){
 				callError('VIP or higher rank is required to publish.');
 			}
+			else if(response.code == 5){
+				callError('Submitted themes are immutable.');
+			}
 			else {
 				callError(system.error);
 			}
@@ -868,9 +1069,18 @@ uploadPublicThemeBackground = function(){
 		}
 	});
 }
+choosePublicThemeBackground = function(){
+	if(publicThemeIsLocked()){
+		callError('Submitted themes are immutable.');
+		return;
+	}
+	if($('#public_theme_bg_file').length){
+		$('#public_theme_bg_file').trigger('click');
+	}
+}
 removePublicThemeBackground = function(){
 	if(publicThemeIsLocked()){
-		callError('Approved themes are immutable.');
+		callError('Submitted themes are immutable.');
 		return;
 	}
 	$('#public_theme_bg').val('');
@@ -887,6 +1097,9 @@ applyPublicTheme = function(themeId){
 			href += (href.indexOf('?') > -1 ? '&' : '?') + 'ptv=' + (response.tv ? response.tv : new Date().getTime());
 			$("#actual_theme").attr("href", href);
 			$('#main_logo').attr('src', response.logo);
+			if(response.theme_id && typeof response.installs !== 'undefined'){
+				updatePublicThemeInstallDisplay(response.theme_id, response.installs, true);
+			}
 			callSuccess('Theme applied.');
 		}
 		else if(response.code == 2){
@@ -963,6 +1176,9 @@ deletePublicTheme = function(themeId){
 }
 $(document).on('input change', '#public_theme_builder input, #public_theme_builder textarea', function(){
 	if($(this).attr('id') == 'public_theme_bg_file'){
+		if(this.files && this.files.length){
+			uploadPublicThemeBackground();
+		}
 		return;
 	}
 	applyPublicThemeLivePreview();
@@ -1212,7 +1428,7 @@ acceptFriend = function(t, friend){
 		add_friend: friend,
 		}, function(response) {
 			$(t).parent().replaceWith("");
-			if($('.friend_request').length < 1 && $('#friends_menu:visible').length){
+				if($('.friend_request').length < 1 && $('#friends_menu').is(':visible')){
 				hideMenu('friends_menu');
 			}
 	});
@@ -1232,7 +1448,7 @@ removeFriend = function(t, id){
 		remove_friend: id,
 		}, function(response) {
 			$(t).parent().replaceWith("");
-			if($('.friend_request').length < 1 && $('#friends_menu:visible').length){
+				if($('.friend_request').length < 1 && $('#friends_menu').is(':visible')){
 				hideMenu('friends_menu');
 			}
 	});
@@ -2164,7 +2380,7 @@ uploadChat = function(f){
 			form_data.append("token", utk)
 			mupload = $.ajax({
 				url: "system/action/file_chat.php",
-				dataType: 'json',
+				dataType: 'text',
 				cache: false,
 				contentType: false,
 				processData: false,
@@ -2183,15 +2399,24 @@ uploadChat = function(f){
 					}, false);
 					return xhr;
 				},
-				success: function(response){
-					if(response.code == 1){
+					success: function(response){
+						var result = null;
+						try {
+							result = JSON.parse(response || '');
+						}
+						catch(err){
+							callError(system.error);
+							resetMainUp();
+							return;
+						}
+						if(result.code == 1){
 						callError(system.wrongFile);
 					}
-					else if(response.code == 9){
+						else if(result.code == 9){
 						callError(system.fileBlocked);
 					}
-					else if(response.code == 5){
-						appendSelfChatMessage(response.logs);
+						else if(result.code == 5){
+							appendSelfChatMessage(result.logs);
 					}
 					else {
 						callError(system.error);
@@ -2270,7 +2495,7 @@ uploadPrivate = function(f){
 			form_data.append("token", utk)
 			pupload = $.ajax({
 				url: "system/action/file_private.php",
-				dataType: 'json',
+				dataType: 'text',
 				cache: false,
 				contentType: false,
 				processData: false,
@@ -2289,17 +2514,26 @@ uploadPrivate = function(f){
 					}, false);
 					return xhr;
 				},
-				success: function(response){
-					if(response.code == 1){
+						success: function(response){
+							var result = null;
+							try {
+								result = JSON.parse(response || '');
+							}
+							catch(err){
+								callError(system.error);
+								resetPrivateUp();
+								return;
+							}
+							if(result.code == 1){
 						callError(system.wrongFile);
 					}
-					else if(response.code == 9){
+						else if(result.code == 9){
 						callError(system.fileBlocked);
 					}
-					else if(response.code == 5){
-						appendSelfPrivateMessage(response.logs);
+						else if(result.code == 5){
+							appendSelfPrivateMessage(result.logs);
 					}	
-					else if(response.code == 99){
+						else if(result.code == 99){
 						appendCannotPrivate();
 					}
 					else {

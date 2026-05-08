@@ -1,18 +1,229 @@
 /* default login css */
 
 /*intro css */
+body {
+	display: inline-table;
+}
+#intro_top { margin-top: 20px; }
 #login_logo { height:70px; }
-#intro_top { width:100%; height:100%; z-index:1; position:relative; background:#292929 url('images/background.jpg'); background-repeat:no-repeat; background-size:cover; background-position:center center; background-attachment:fixed; }
-#login_wrap { width:100%; height:100%; }
-#login_all { width:800px; max-width:94%; border-radius:20px; display:block; margin:0 auto; color:#fff; }
+#intro_top { width:100%; height:100vh; z-index:1; position:relative; background-repeat:no-repeat; background-size:cover; background-position:center center; background-attachment:fixed; }
+#login_wrap { width:100%; height:100%; z-index: 0;}
+#login_all { width:1100px; max-width:94%; border-radius:20px; display:block; margin:0 auto; color:#fff; text-align:left;  background-color: rgba(0, 0, 0, 0.247); backdrop-filter: blur(10px);}
 .login_not_member { text-align:center; padding-top:5px; }
 #intro_lang { position:absolute; top:10px; right:20px; width:40px; height:40px; }
+#main_footer { position:relative; z-index:1; }
+.login_split_wrap { width:100%; }
+.login_split { display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap:24px; text-align:left; }
+.login_panel, .login_rules {
+	background: rgba(8, 12, 28, 0.58);
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	border-radius: 18px;
+	padding: 20px;
+	box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+	backdrop-filter: blur(10px);
+}
+.sub_text, .list_mood {
+	color: rgb(216, 216, 216) !important;
+}
+.login_panel_header { display:flex; align-items:center; gap:10px; font-size:18px; font-weight:bold; margin-bottom:14px; letter-spacing:0.2px; }
+.login_panel_header i { opacity:0.8; }
+.login_rules_body { max-height:360px; overflow-y:auto; line-height:1.55; padding-right:6px; }
+.login_rules_body ul { list-style:disc; padding-left:20px; }
+.login_rules_body ol { list-style:decimal; padding-left:20px; }
+.login_form_actions { margin-top:10px; }
+.login_panel_footer { margin-top:18px; display:flex; flex-direction:column; gap:12px; }
+.login_panel_footer .large_button_rounded { width:100%; }
+.login_register { text-align:center; }
+
+@media screen and (max-width: 980px){
+	.login_split { grid-template-columns: 1fr; }
+	.login_rules_body { max-height:260px; }
+}
 
 /* section css */
 .section { width:100%; height:auto; margin:0 auto; }
 .section_content { width:100%; max-width:1100px; margin:0 auto; }
 .section_inside { margin:0 auto; }
 
+#main_footer {
+	background-color: rgba(0, 0, 0, 0.507); 
+	backdrop-filter: blur(10px);
+	border-top-left-radius: 20px;
+	border-top-right-radius: 20px;
+	margin-top: 20px;
+}
+
+.text_title {
+	margin-bottom: 0px !important;
+}
+
+.text_text {
+	margin-top: 0px;
+	margin-bottom: 10px;
+}
+
 @media screen and (max-width:1120px){
 	.section_inside { width:96%; }
 }
+
+	#login_wrap {
+		position: relative;
+		min-height: 100vh;
+		--color-bg1: rgb(108, 0, 162);
+		--color-bg2: rgb(0, 17, 82);
+		--color1: 18, 113, 255;
+		--color2: 221, 74, 255;
+		--color3: 100, 220, 255;
+		--color4: 173, 120, 191;
+		--color5: 126, 185, 230;
+		--color-interactive: 206, 228, 212;
+		--circle-size: 80%;
+		--blending: hard-light;
+	}
+
+
+	#login_wrap > :not(.login-bg) {
+		position: relative;
+		z-index: 1;
+	}
+
+	@keyframes moveInCircle {
+		0% {
+			transform: rotate(0deg);
+		}
+		50% {
+			transform: rotate(180deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes moveVertical {
+		0% {
+			transform: translateY(-50%);
+		}
+		50% {
+			transform: translateY(50%);
+		}
+		100% {
+			transform: translateY(-50%);
+		}
+	}
+
+	@keyframes moveHorizontal {
+		0% {
+			transform: translateX(-50%) translateY(-10%);
+		}
+		50% {
+			transform: translateX(50%) translateY(10%);
+		}
+		100% {
+			transform: translateX(-50%) translateY(-10%);
+		}
+	}
+
+	.login-bg {
+		position: fixed;
+		inset: 0;
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	.gradient-bg {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		overflow: hidden;
+		background: linear-gradient(40deg, var(--color-bg1), var(--color-bg2));
+	}
+
+	.gradient-bg svg {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 0;
+		height: 0;
+	}
+
+	.gradients-container {
+		filter: url(#goo) blur(40px);
+		width: 100%;
+		height: 100%;
+	}
+
+	.g1 {
+		position: absolute;
+		background: radial-gradient(circle at center, rgba(var(--color1), 0.8) 0, rgba(var(--color1), 0) 50%) no-repeat;
+		mix-blend-mode: var(--blending);
+		width: var(--circle-size);
+		height: var(--circle-size);
+		top: calc(50% - var(--circle-size) / 2);
+		left: calc(50% - var(--circle-size) / 2);
+		transform-origin: center center;
+		animation: moveVertical 30s ease infinite;
+		opacity: 1;
+	}
+
+	.g2 {
+		position: absolute;
+		background: radial-gradient(circle at center, rgba(var(--color2), 0.8) 0, rgba(var(--color2), 0) 50%) no-repeat;
+		mix-blend-mode: var(--blending);
+		width: var(--circle-size);
+		height: var(--circle-size);
+		top: calc(50% - var(--circle-size) / 2);
+		left: calc(50% - var(--circle-size) / 2);
+		transform-origin: calc(50% - 400px);
+		animation: moveInCircle 20s reverse infinite;
+		opacity: 1;
+	}
+
+	.g3 {
+		position: absolute;
+		background: radial-gradient(circle at center, rgba(var(--color3), 0.8) 0, rgba(var(--color3), 0) 50%) no-repeat;
+		mix-blend-mode: var(--blending);
+		width: var(--circle-size);
+		height: var(--circle-size);
+		top: calc(50% - var(--circle-size) / 2 + 200px);
+		left: calc(50% - var(--circle-size) / 2 - 500px);
+		transform-origin: calc(50% + 400px);
+		animation: moveInCircle 40s linear infinite;
+		opacity: 1;
+	}
+
+	.g4 {
+		position: absolute;
+		background: radial-gradient(circle at center, rgba(var(--color4), 0.8) 0, rgba(var(--color4), 0) 50%) no-repeat;
+		mix-blend-mode: var(--blending);
+		width: var(--circle-size);
+		height: var(--circle-size);
+		top: calc(50% - var(--circle-size) / 2);
+		left: calc(50% - var(--circle-size) / 2);
+		transform-origin: calc(50% - 200px);
+		animation: moveHorizontal 40s ease infinite;
+		opacity: 0.7;
+	}
+
+	.g5 {
+		position: absolute;
+		background: radial-gradient(circle at center, rgba(var(--color5), 0.8) 0, rgba(var(--color5), 0) 50%) no-repeat;
+		mix-blend-mode: var(--blending);
+		width: calc(var(--circle-size) * 2);
+		height: calc(var(--circle-size) * 2);
+		top: calc(50% - var(--circle-size));
+		left: calc(50% - var(--circle-size));
+		transform-origin: calc(50% - 800px) calc(50% + 200px);
+		animation: moveInCircle 20s ease infinite;
+		opacity: 1;
+	}
+
+	.interactive {
+		position: absolute;
+		background: radial-gradient(circle at center, rgba(var(--color-interactive), 0.8) 0, rgba(var(--color-interactive), 0) 50%) no-repeat;
+		mix-blend-mode: var(--blending);
+		width: 100%;
+		height: 100%;
+		top: -50%;
+		left: -50%;
+		opacity: 0.7;
+	}

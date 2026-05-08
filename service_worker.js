@@ -1,4 +1,5 @@
-const CACHE_NAME = 'codychat-cache-v20260410-emoji-fix';
+const SW_VERSION = new URL(self.location.href).searchParams.get('v') || '1';
+const CACHE_NAME = 'codychat-cache-v' + SW_VERSION;
 const urlsToCache = [
   '/',
 ];

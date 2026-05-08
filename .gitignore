@@ -1,58 +1,38 @@
-# ------------------------------------------------------------
-# Local machine / editor noise
-# ------------------------------------------------------------
-.DS_Store
-Thumbs.db
+# --- IDEs and System Files ---
 .vscode/
 .idea/
-*.code-workspace
-
-# ------------------------------------------------------------
-# Local deploy/debug artifacts
-# ------------------------------------------------------------
-*.log
-*.tmp
-*.bak
-*.swp
-*.swo
-*.tgz
-*.tar
-*.tar.gz
-*.zip
-compare_results.txt
-local_pre_restore_*.tgz
+.github/
+.ftpquota
 error_log
-**/error_log
+compare_results.txt
 
-# ------------------------------------------------------------
-# Host/local-only files
-# ------------------------------------------------------------
-/.ftpquota
+# --- Dependencies ---
+node_modules/
 
-# ------------------------------------------------------------
-# Environment-specific runtime config (never commit secrets)
-# ------------------------------------------------------------
+# --- Environment & Configuration (Preserved on server) ---
+# We ignore these locally because the script indicates they are 
+# server-specific or contain sensitive credentials.
 system/database.php
 system/settings.php
 
-# ------------------------------------------------------------
-# Runtime user-generated content (keep placeholders)
-# ------------------------------------------------------------
-avatar/*
-!avatar/.htaccess
-!avatar/index.php
+# --- User-Generated Content / Media ---
+# These paths are excluded in your rsync to prevent overwriting 
+# uploads with empty local folders.
+avatar/
+cover/
+upload/
+music/
+room_icon/
+gift/
+theme_public/
+css/themes/
+goofy/
+*files.zip*
+updates files/update*
 
-cover/*
-!cover/.htaccess
-!cover/index.php
-
-music/*
-!music/index.php
-
-room_icon/*
-!room_icon/.htaccess
-!room_icon/index.php
-
-upload/**
-!upload/.htaccess
-!upload/index.php
+# --- Deployment Artifacts ---
+# Matches the patterns used for the temporary tarballs
+chat_release_*.tar.gz
+chat_full_*.tar.gz
+chat_deploy_runner_*.sh
+scripts/deploy-chat-safe.ps1

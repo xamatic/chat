@@ -8,7 +8,10 @@ if($chat_install != 1){
 }
 $page = getPageData($page_info);
 $bbfv = boomFileVersion();
-$cache_force_token = '20260410_publicthemes_1';
+$cache_force_token = preg_replace('/[^a-zA-Z0-9._-]/', '', (string) $setting['bbfv']);
+if($cache_force_token == ''){
+	$cache_force_token = '1';
+}
 $cache_force = (strpos($bbfv, '?') === 0) ? '&cv=' . $cache_force_token : '?cv=' . $cache_force_token;
 $brtl = 0;
 if(isRtl(BOOM_LANG) && $page['page_rtl'] == 1){
@@ -60,17 +63,25 @@ if(boomLogged() && !boomAllow($page['page_rank'])){
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar" content="black-translucent">
 <meta name="theme-color" content="#000000">
+<?php } ?>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  if ('serviceWorker' in navigator) {
 	const cacheResetVersion = '<?php echo $cache_force_token; ?>';
-	const resetKey = 'cache_reset_' + cacheResetVersion;
-	const swUrl = '<?php echo $setting['domain']; ?>/service_worker.js?v=' + cacheResetVersion;
+	const versionKey = 'chat_cache_version';
+	const swUrl = '<?php echo $setting['domain']; ?>/service_worker.js?v=' + encodeURIComponent(cacheResetVersion);
 
-	const unregisterWorkers = function(){
-		return navigator.serviceWorker.getRegistrations().then((registrations) => {
-			return Promise.all(registrations.map((registration) => registration.unregister()));
-		});
+	const forceRefresh = function(){
+		try {
+			const url = new URL(window.location.href);
+			if(url.searchParams.get('cache_refresh') === cacheResetVersion){
+				return;
+			}
+			url.searchParams.set('cache_refresh', cacheResetVersion);
+			window.location.replace(url.toString());
+		}
+		catch (e){
+			window.location.reload();
+		}
 	};
 
 	const clearCacheStorage = function(){
@@ -83,32 +94,40 @@ document.addEventListener('DOMContentLoaded', () => {
 	};
 
 	const registerWorker = function(){
+		if(!('serviceWorker' in navigator)){
+			return Promise.resolve();
+		}
 		return navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' })
 		  .then((registration) => {
-			console.log('Service Worker registered with scope:', registration.scope);
+			return registration.update().catch(() => Promise.resolve());
 		  })
-		  .catch((error) => {
-			console.error('Service Worker registration failed:', error);
-		  });
+		  .catch(() => Promise.resolve());
 	};
 
-	if(localStorage.getItem(resetKey) !== '1'){
+	const unregisterWorkers = function(){
+		if(!('serviceWorker' in navigator)){
+			return Promise.resolve();
+		}
+		return navigator.serviceWorker.getRegistrations().then((registrations) => {
+			return Promise.all(registrations.map((registration) => registration.unregister()));
+		});
+	};
+
+	if(localStorage.getItem(versionKey) !== cacheResetVersion){
 		unregisterWorkers()
 		  .catch(() => Promise.resolve())
 		  .then(clearCacheStorage)
 		  .catch(() => Promise.resolve())
 		  .then(() => {
-			localStorage.setItem(resetKey, '1');
-			window.location.reload();
+			localStorage.setItem(versionKey, cacheResetVersion);
+			forceRefresh();
 		  });
 		return;
 	}
 
 	registerWorker();
-  }
 });
 </script>
-<?php } ?>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 	yall({

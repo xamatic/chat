@@ -196,7 +196,7 @@ if(!boomAllow(100)){
 							else if(response.indexOf("pvip") >= 1){
 								hideModal();
 								callSuccess(system.actionComplete);
-								if($('.vipuserelem:visible').length){
+									if($('.vipuserelem').filter(':visible').length){
 									$('#vip_paid_listing').prepend(response);
 								}
 								else {

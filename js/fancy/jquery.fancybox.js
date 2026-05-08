@@ -766,7 +766,7 @@
         obj.$thumb = obj.opts.$thumb || null;
 
         if (obj.opts.$trigger && obj.index === self.opts.index) {
-          obj.$thumb = obj.opts.$trigger.find("img:first");
+          obj.$thumb = obj.opts.$trigger.find("img").first();
 
           if (obj.$thumb.length) {
             obj.opts.$orig = obj.opts.$trigger;
@@ -774,7 +774,7 @@
         }
 
         if (!(obj.$thumb && obj.$thumb.length) && obj.opts.$orig) {
-          obj.$thumb = obj.opts.$orig.find("img:first");
+          obj.$thumb = obj.opts.$orig.find("img").first();
         }
 
         if (obj.$thumb && !obj.$thumb.length) {
@@ -2582,7 +2582,7 @@
       if (!!current.opts.video.autoStart) {
         current.$slide
           .find("video,audio")
-          .filter(":visible:first")
+          .filter(":visible").first()
           .trigger("play")
           .one("ended", function () {
             if (Document.exitFullscreen) {
@@ -2598,7 +2598,7 @@
       // Try to focus on the first focusable element
       if (current.opts.autoFocus && current.contentType === "html") {
         // Look for the first input with autofocus attribute
-        $el = current.$content.find("input[autofocus]:enabled:visible:first");
+        $el = current.$content.find("input[autofocus]:enabled").filter(":visible").first();
 
         if ($el.length) {
           $el.trigger("focus");
@@ -3070,7 +3070,7 @@
     // ======================================================
 
     getInstance: function (command) {
-      var instance = $('.fancybox-container:not(".fancybox-is-closing"):last').data("FancyBox"),
+        var instance = $('.fancybox-container:not(".fancybox-is-closing")').last().data("FancyBox"),
         args = Array.prototype.slice.call(arguments, 1);
 
       if (instance instanceof FancyBox) {

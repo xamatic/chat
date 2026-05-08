@@ -867,7 +867,7 @@ function getMinutes($t){
 	return $t / 60;
 }
 function isOwner($user){
-	if($user['user_rank'] == 100){
+	if($user['user_rank'] >= 99){
 		return true;
 	}
 }

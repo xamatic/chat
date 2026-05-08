@@ -232,7 +232,7 @@ registerModal = function(v){
 	}
 }
 checkModal = function(){
-	if(systemLoaded == 0 || modalList.length === 0 || $('.modal_back:visible').length){
+	if(systemLoaded == 0 || modalList.length === 0 || $('.modal_back').filter(':visible').length){
 		return false;
 	}
 	else {
@@ -837,7 +837,7 @@ acceptFriend = function(t, friend){
 		add_friend: friend,
 		}, function(response) {
 			$(t).parent().replaceWith("");
-			if($('.friend_request').length < 1 && $('#friends_menu:visible').length){
+				if($('.friend_request').length < 1 && $('#friends_menu').is(':visible')){
 				hideMenu('friends_menu');
 			}
 	});
@@ -857,7 +857,7 @@ removeFriend = function(t, id){
 		remove_friend: id,
 		}, function(response) {
 			$(t).parent().replaceWith("");
-			if($('.friend_request').length < 1 && $('#friends_menu:visible').length){
+				if($('.friend_request').length < 1 && $('#friends_menu').is(':visible')){
 				hideMenu('friends_menu');
 			}
 	});
@@ -1621,7 +1621,7 @@ uploadChat = function(f){
 			form_data.append("token", utk)
 			mupload = $.ajax({
 				url: "system/action/file_chat.php",
-				dataType: 'json',
+				dataType: 'text',
 				cache: false,
 				contentType: false,
 				processData: false,
@@ -1640,15 +1640,24 @@ uploadChat = function(f){
 					}, false);
 					return xhr;
 				},
-				success: function(response){
-					if(response.code == 1){
+					success: function(response){
+						var result = null;
+						try {
+							result = JSON.parse(response || '');
+						}
+						catch(err){
+							callError(system.error);
+							resetMainUp();
+							return;
+						}
+						if(result.code == 1){
 						callError(system.wrongFile);
 					}
-					else if(response.code == 9){
+						else if(result.code == 9){
 						callError(system.fileBlocked);
 					}
-					else if(response.code == 5){
-						appendSelfChatMessage(response.logs);
+						else if(result.code == 5){
+							appendSelfChatMessage(result.logs);
 					}
 					else {
 						callError(system.error);
@@ -1727,7 +1736,7 @@ uploadPrivate = function(f){
 			form_data.append("token", utk)
 			pupload = $.ajax({
 				url: "system/action/file_private.php",
-				dataType: 'json',
+				dataType: 'text',
 				cache: false,
 				contentType: false,
 				processData: false,
@@ -1746,17 +1755,26 @@ uploadPrivate = function(f){
 					}, false);
 					return xhr;
 				},
-				success: function(response){
-					if(response.code == 1){
+						success: function(response){
+							var result = null;
+							try {
+								result = JSON.parse(response || '');
+							}
+							catch(err){
+								callError(system.error);
+								resetPrivateUp();
+								return;
+							}
+							if(result.code == 1){
 						callError(system.wrongFile);
 					}
-					else if(response.code == 9){
+						else if(result.code == 9){
 						callError(system.fileBlocked);
 					}
-					else if(response.code == 5){
-						appendSelfPrivateMessage(response.logs);
+						else if(result.code == 5){
+							appendSelfPrivateMessage(result.logs);
 					}
-					else if(response.code == 99){
+						else if(result.code == 99){
 						appendCannotPrivate();
 					}
 					else {

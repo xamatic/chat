@@ -93,7 +93,7 @@ input,textarea,.post_input_container{font-family:'Roboto',sans-serif,'FontAwesom
 .foot{background:#222; color:#fff}
 
 /* background major element panel, page menu, float menu, modal, chat boxes */
-.backglob{background:#222}
+.backglob{background:#222; backdrop-filter: none !important } /* temporary fix for background blur issue */
 .back_chat{background:#222 url('./images/office.webp');background-repeat:repeat;}
 .back_priv,.back_panel,.back_modal,.page_element{background:#222; }
 .back_menu{background:#333; }

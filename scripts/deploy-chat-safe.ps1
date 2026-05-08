@@ -205,7 +205,7 @@ if [ "$USE_DELETE" = "1" ]; then
 fi
 
 # Deploy code while preserving server-owned/runtime data.
-rsync -a $RSYNC_DELETE_ARG \
+rsync -a --delay-updates $RSYNC_DELETE_ARG \
   --exclude ".git/" \
   --exclude ".github/" \
   --exclude ".vscode/" \
@@ -217,10 +217,20 @@ rsync -a $RSYNC_DELETE_ARG \
   --exclude "music/" \
   --exclude "room_icon/" \
   --exclude "gift/" \
+  --exclude "theme_public/" \
+  --exclude "upload/theme_public/" \
   --exclude "error_log" \
   --exclude ".ftpquota" \
   --exclude "compare_results.txt" \
+  --exclude "css/themes" \
   "$EXTRACT_PATH/" "$REMOTE_CHAT_PATH/"
+
+# Bump cache-busting version on each deployment so all clients refresh safely.
+CACHE_BUST_VERSION=$(date +%Y%m%d%H%M%S)
+SETTINGS_FILE="$REMOTE_CHAT_PATH/system/settings.php"
+if [ -f "$SETTINGS_FILE" ]; then
+  sed -i -E "s/(\$setting\['bbfv'\] = ')[^']*(';)/\1$CACHE_BUST_VERSION\2/" "$SETTINGS_FILE" || true
+fi
 
 HEALTH_CODE="NA"
 if [ -n "$HEALTH_URL" ]; then
@@ -234,6 +244,7 @@ fi
 rm -rf "$EXTRACT_PATH" "$ARCHIVE_PATH"
 
 echo "BACKUP_FILE=$BACKUP_FILE"
+echo "CACHE_BUST_VERSION=$CACHE_BUST_VERSION"
 echo "HEALTH_CODE=$HEALTH_CODE"
 echo "DEPLOY_DONE=1"
 '@

@@ -290,7 +290,7 @@ changeRank = function(t, target){
 			}
 			else if(response == 1){
 				callSuccess(system.saved);
-				if($('#mprofilemenu:visible').length){
+				if($('#mprofilemenu').is(':visible')){
 					getProfile(target);
 				}
 			}

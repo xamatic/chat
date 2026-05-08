@@ -57,7 +57,7 @@ runInstaller = function(){
 				}
 			},
 			error: function(){
-				waitInstall = 0;
+			 	waitInstall = 0;
 				$('#wait_install').hide();
 				$('#install_component').show();
 				return false;
@@ -115,7 +115,7 @@ callSaved = function(text, type){
 	$('.saved_data').fadeIn(300).delay(3000).fadeOut();
 }
 selectIt = function(){
-	$("select:visible").selectBoxIt({ 
+	$("select").filter(':visible').selectBoxIt({ 
 		autoWidth: false,
 		hideEffect: 'fadeOut',
 		hideEffectSpeed: 100

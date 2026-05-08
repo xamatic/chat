@@ -132,7 +132,7 @@ declineCall = function(){
 }
 
 updateCall = function(type){
-	if($('#call_pending:visible').length){
+	if($('#call_pending').is(':visible')){
 		$.ajax({
 			url: "system/action/action_call.php",
 			type: "post",
@@ -155,7 +155,7 @@ updateCall = function(type){
 }
 
 updateIncomingCall = function(type){
-	if($('#call_request:visible').length){
+	if($('#call_request').is(':visible')){
 		$.ajax({
 			url: "system/action/action_call.php",
 			type: "post",
@@ -209,7 +209,7 @@ checkCall = function(ncall){
 }
 
 inCall = function(){
-	if($('#call_pending:visible').length || $('#call_request:visible').length || $('#container_call:visible').length){
+	if($('#call_pending').is(':visible') || $('#call_request').is(':visible') || $('#container_call').is(':visible')){
 		return 1;
 	}
 	else {
@@ -224,7 +224,7 @@ callOn = function(){
 	if(!insideChat()){
 		$('.vidminus').replaceWith("");
 	}
-	if($('.modal_in:visible').length){
+	if($('.modal_in').filter(':visible').length){
 		$('.vidstream').addClass('over_stream');
 	}
 	else {

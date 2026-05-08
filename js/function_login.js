@@ -7,13 +7,13 @@ $(document).ready(function(){
 	
 	$(document).keypress(function(e) {
 		if(e.which == 13) {
-			if($('#login_form_box:visible').length){
+			if($('#login_form_box').is(':visible')){
 				sendLogin();
 			}
-			else if($('#registration_form_box:visible').length){
+			else if($('#registration_form_box').is(':visible')){
 				sendRegistration();
 			}
-			else if($('#guest_form_box:visible').length){
+			else if($('#guest_form_box').is(':visible')){
 				sendGuestLogin();
 			}
 			else {

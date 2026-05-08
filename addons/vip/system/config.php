@@ -5,6 +5,19 @@ require_once('../../../system/config_addons.php');
 if(!canManageAddons()){
 	die();
 }
+
+$cashapp_env = '';
+$cashapp_token = '';
+$cashapp_location = '';
+$cashapp_file = __DIR__ . '/payment/cashapp_credentials.php';
+if(file_exists($cashapp_file)) {
+	require($cashapp_file);
+	if(isset($cashapp_config)) {
+		$cashapp_env = $cashapp_config['env'];
+		$cashapp_token = $cashapp_config['token'];
+		$cashapp_location = $cashapp_config['location'];
+	}
+}
 ?>
 <?php echo elementTitle($addons['addons'], 'loadLob(\'admin/setting_addons.php\');'); ?>
 <div class="page_full">
@@ -44,6 +57,24 @@ if(!canManageAddons()){
 					</select>
 				</div>
 				<div class="vpad15">
+					<p class="text_large bold">Cash App / Square Payment</p>
+				</div>
+				<div class="setting_element ">
+					<p class="label">Cash App Mode</p>
+					<select id="set_cashapp_env">
+						<option <?php echo selCurrent($cashapp_env, 'sandbox'); ?> value="sandbox"><?php echo $lang['vip_sandbox']; ?></option>
+						<option <?php echo selCurrent($cashapp_env, 'live'); ?> value="live"><?php echo $lang['vip_live']; ?></option>
+					</select>
+				</div>
+				<div class="setting_element">
+					<p class="label">Access Token</p>
+					<input id="set_cashapp_token" class="full_input" value="<?php echo $cashapp_token; ?>" type="text"/>
+				</div>
+				<div class="setting_element">
+					<p class="label">Location ID</p>
+					<input id="set_cashapp_location" class="full_input" value="<?php echo $cashapp_location; ?>" type="text"/>
+				</div>
+				<div class="vpad15">
 					<p class="text_large bold"><?php echo $lang['vip_plan']; ?></p>
 				</div>
 				<div class="setting_element">
@@ -65,6 +96,25 @@ if(!canManageAddons()){
 				<div class="setting_element">
 					<p class="label"><?php echo $lang['vip_plan5']; ?></p>
 					<input id="set_plan5" class="full_input" value="<?php echo $addons['custom5']; ?>" type="text"/>
+				</div>
+				<div class="vpad15">
+					<p class="text_large bold"><?php echo $lang['vip_tier_star']; ?></p>
+				</div>
+				<div class="setting_element">
+					<p class="label"><?php echo $lang['vip_plan6']; ?></p>
+					<input id="set_plan6" class="full_input" value="<?php echo vipPrice(6); ?>" type="text"/>
+				</div>
+				<div class="setting_element">
+					<p class="label"><?php echo $lang['vip_plan7']; ?></p>
+					<input id="set_plan7" class="full_input" value="<?php echo vipPrice(7); ?>" type="text"/>
+				</div>
+				<div class="setting_element">
+					<p class="label"><?php echo $lang['vip_plan8']; ?></p>
+					<input id="set_plan8" class="full_input" value="<?php echo vipPrice(8); ?>" type="text"/>
+				</div>
+				<div class="setting_element">
+					<p class="label"><?php echo $lang['vip_plan9']; ?></p>
+					<input id="set_plan9" class="full_input" value="<?php echo vipPrice(9); ?>" type="text"/>
 				</div>
 				<button id="save_vip_plan" onclick="saveVip();" type="button" class="tmargin10 reg_button theme_btn"><i class="fa fa-floppy-o"></i> <?php echo $lang['save']; ?></button>
 			</div>
@@ -241,9 +291,16 @@ if(!canManageAddons()){
 						plan3: $('#set_plan3').val(),
 						plan4: $('#set_plan4').val(),
 						plan5: $('#set_plan5').val(),
+						plan6: $('#set_plan6').val(),
+						plan7: $('#set_plan7').val(),
+						plan8: $('#set_plan8').val(),
+						plan9: $('#set_plan9').val(),
 						paypal_mode: $('#set_paypal_mode').val(),
 						paypal_id: $('#set_paypal_id').val(),
 						paypal_secret: $('#set_paypal_secret').val(),
+						cashapp_env: $('#set_cashapp_env').val(),
+						cashapp_token: $('#set_cashapp_token').val(),
+						cashapp_location: $('#set_cashapp_location').val(),
 						currency: $('#set_vip_currency').val(),
 						token: utk,
 						}, function(response) {
@@ -349,7 +406,7 @@ if(!canManageAddons()){
 								else if(response.indexOf("pvip") >= 1){
 									hideModal();
 									callSaved(system.actionComplete, 1);
-									if($('.vipuserelem:visible').length){
+									if($('.vipuserelem').filter(':visible').length){
 										$('#vip_paid_listing').prepend(response);
 									}
 									else {

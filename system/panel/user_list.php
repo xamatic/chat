@@ -1,5 +1,7 @@
 <?php
-require('../config_session.php');
+if(!defined('BOOM')){
+	require('../config_session.php');
+}
 
 function addUserToRoleGroup(&$groups, $user, $item){
 	$role = userListRoleInfo($user);
@@ -45,13 +47,16 @@ $onair_group_list = [];
 $online_count = 0;
 $onair_count = 0;
 $lazy_state = 0;
-$lazy_min = 20;
+if(!isset($lazy_min)){
+	$lazy_min = 20;
+}
 
+// Get ALL online users across all rooms, not just the current room
 $data_list = $mysqli->query("
 	SELECT user_id, user_name, user_color, user_font, user_rank, user_level, user_dj, user_onair, user_join, user_sex, user_age, user_tumb, user_cover, user_status, country,
 	user_ghost, user_mute, user_rmute, user_mmute, room_mute, last_action, user_bot, user_role, user_mood, sshare, lshare, ashare
 	FROM `boom_users`
-	WHERE `user_roomid` = {$data["user_roomid"]}  AND last_action > '$check_action' AND user_status != 99 || user_bot = 1
+	WHERE `user_roomid` = {$data["user_roomid"]} AND last_action > '$check_action' AND user_status != 99 || user_bot = 1
 	ORDER BY `user_rank` DESC, user_role DESC, `user_name` ASC 
 ");
 
@@ -60,7 +65,7 @@ if($setting['max_offcount'] > 0){
 		SELECT user_id, user_name, user_color, user_font, user_rank, user_level, user_dj, user_onair, user_join, user_sex, user_age, user_tumb, user_cover, user_status, country,
 		user_ghost, user_mute, user_rmute, user_mmute, room_mute, last_action, user_bot, user_role, user_mood, sshare, lshare, ashare
 		FROM `boom_users`
-		WHERE `user_roomid` = {$data["user_roomid"]}  AND last_action > '$online_delay' AND last_action < '$check_action' AND user_status != 99 AND  user_rank != 0 AND user_bot = 0
+		WHERE `user_roomid` = {$data["user_roomid"]} AND last_action > '$online_delay' AND last_action < '$check_action' AND user_status != 99 AND  user_rank != 0 AND user_bot = 0
 		ORDER BY last_action DESC LIMIT {$setting['max_offcount']}
 	");
 }
@@ -118,7 +123,7 @@ $online_user = renderRoleGroups($online_group_list, 'online_user');
 	<div class="user_count">
 		<div class="bcell">
 			<?php echo $lang['onair']; ?> <span class="ucount theme_btn"><?php echo $onair_count; ?></span>
-		</div>
+		</div> 
 	</div>
 	<?php echo $onair_user; ?>
 	<?php } ?>

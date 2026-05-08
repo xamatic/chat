@@ -20,8 +20,8 @@
 	#container_stream_audio { top:100px; }
 }
 @media screen and (max-width:800px){
-	#private_center { border-left:none !important;
-}
+	#private_center { border-left:none !important; }
+}	
 @media screen and (max-width:768px){
 	#side_menu { border-bottom:0px !important; border-top:0px !important; }
 	.hide_mobile { display:none; }

@@ -42,7 +42,7 @@ if(isset($_POST['buy_effect'])){
 	}
 	$effects = chatEffectList();
 	$price = (int) $effects[$effect]['price'];
-	if($price < 1 || $price > 5000){
+	if($price < 1 || $price > maxGold()){
 		echo boomCode(0);
 		die();
 	}
@@ -104,7 +104,7 @@ if(isset($_POST['buy_profile_effect'])){
 		die();
 	}
 	$price = profileEffectPrice($category, $effect);
-	if($price < 1 || $price > 5000){
+	if($price < 1 || $price > maxGold()){
 		echo boomCode(0);
 		die();
 	}
