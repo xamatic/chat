@@ -693,6 +693,7 @@ $lang['admin'] = 'Admin';
 $lang['mod'] = 'Moderator';
 $lang['jr_mod'] = 'Mod in Training';
 $lang['vip'] = 'VIP';
+$lang['SVIP'] = 'Star VIP';
 $lang['user'] = 'User';
 $lang['guest'] = 'Guest';
 $lang['user_bot'] = 'Bot';
