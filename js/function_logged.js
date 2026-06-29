@@ -1745,10 +1745,13 @@ sendGoofyRandom = function(){
 getEffectsShop = function(){
 	$.post('system/box/effects.php', {
 		}, function(response) {
-			overModal(response, 980);
+			overModal(response, 760);
 			$('#over_modal').addClass('effects_modal_backdrop');
-			$('#over_modal_in').addClass('effects_modal_shell');
+			$('#over_modal_in').addClass('effects_modal_shell desktop_resizable_window').removeData('desktop-popout-placed');
 			$('#over_modal_content').addClass('effects_modal_content_shell');
+			if(typeof activateDesktopModal === 'function'){
+				activateDesktopModal('#over_modal_in');
+			}
 			if(typeof initEffectsTabs === 'function'){
 				initEffectsTabs();
 			}

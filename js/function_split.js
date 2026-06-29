@@ -268,6 +268,9 @@ desktopPopoutAllowed = function(item){
 	}
 	return true;
 }
+desktopResizeAllowed = function(item){
+	return $(item).hasClass('desktop_resizable_window');
+}
 legacyMenuTrigger = function(item){
 	return $(item).closest('#chat_head, #left_menu').length > 0;
 }
@@ -423,7 +426,12 @@ activateDesktopPopout = function(item){
 		}
 	}
 	if($.fn.resizable){
-		if(target.data('ui-resizable')){
+		if(!desktopResizeAllowed(target)){
+			if(target.data('ui-resizable')){
+				target.resizable('destroy');
+			}
+		}
+		else if(target.data('ui-resizable')){
 			target.resizable('option', {
 				maxWidth: maxWidth,
 				maxHeight: maxHeight
@@ -511,7 +519,12 @@ activateDesktopModal = function(item){
 		}
 	}
 	if($.fn.resizable){
-		if(target.data('ui-resizable')){
+		if(!desktopResizeAllowed(target)){
+			if(target.data('ui-resizable')){
+				target.resizable('destroy');
+			}
+		}
+		else if(target.data('ui-resizable')){
 			target.resizable('option', {
 				maxWidth: bounds.width,
 				maxHeight: maxHeight
@@ -676,12 +689,14 @@ hideModal = function(){
 	onScroll();
 }
 hideOver = function(){
+	resetDesktopPopout('#over_modal_in');
+	resetDesktopPopout('#over_emodal_in');
 	$('#over_modal_content, #over_emodal_content').html('');
 	$('#over_modal, #over_emodal').hide();
 	$('body').removeClass('room_pass_prompt_open');
 	$('#public_theme_live_style').remove();
 	$('#over_modal').removeClass('effects_modal_backdrop');
-	$('#over_modal_in').removeClass('effects_modal_shell');
+	$('#over_modal_in').removeClass('effects_modal_shell desktop_resizable_window');
 	$('#over_modal_content').removeClass('effects_modal_content_shell');
 	if(!$('#small_modal').is(':visible') && !$('#large_modal').is(':visible')){
 		onScroll();

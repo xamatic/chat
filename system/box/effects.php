@@ -13,20 +13,29 @@ foreach($profile_catalog as $cat_key => $cat_data){
 }
 $wallet_enabled = useWallet();
 ?>
-<div class="modal_title">
-	Effects
-</div>
-<div class="modal_content effects_modal_inner">
-	<?php if($wallet_enabled){ ?>
-	<p class="text_small sub_text bpad10">Balance: <?php echo (int) $data['user_gold']; ?> <?php echo $lang['gold']; ?> | All listed options are paid unlocks.</p>
-	<?php } ?>
-	<div class="effects_tab_bar bpad10">
+<div class="effects_window">
+	<div class="ftop_elem float_top effects_window_top">
+		<div class="ftop_opt_icon">
+			<i class="fa fa-bolt"></i>
+		</div>
+		<div class="ftop_opt_text">
+			Effects
+		</div>
+		<?php if($wallet_enabled){ ?>
+		<div class="effects_balance">
+			<?php echo (int) $data['user_gold']; ?> <?php echo $lang['gold']; ?>
+		</div>
+		<?php } ?>
+	</div>
+	<div class="effects_window_body">
+	<div class="effects_tab_bar">
 		<div class="effects_tab effects_tab_active" data-target="effects_tab_chat">Chat FX</div>
 		<?php foreach($profile_catalog as $cat_key => $cat_data){ ?>
 		<div class="effects_tab" data-target="effects_tab_<?php echo $cat_key; ?>"><?php echo $cat_data['title']; ?></div>
 		<?php } ?>
 	</div>
 
+	<div class="effects_panel_area">
 	<div id="effects_tab_chat" class="effects_tab_content effects_tab_show">
 		<p class="label">Bubble send effects</p>
 		<p class="text_small sub_text bpad10">One-shot animations that trigger when you send a message.</p>
@@ -147,7 +156,8 @@ $wallet_enabled = useWallet();
 		</div>
 	</div>
 	<?php } ?>
+	</div>
 
-	<div class="text_small sub_text tpad10">Profile effects apply to your profile card and are one-time paid unlocks.</div>
+	<div class="effects_hint text_small sub_text">Profile effects apply to your profile card and are one-time paid unlocks.</div>
 	</div>
 </div>
