@@ -1,4 +1,8 @@
-<?php if($addons['custom6'] > 0){ ?>
+<?php
+$vipGoldEnabled = (int)($addons['custom6'] ?? 0) > 0;
+$vipGoldMenuLabel = $lang['vip_tier_gold'] ?? ($lang['vip_buy'] ?? 'Gold VIP');
+if($vipGoldEnabled){
+?>
 <script data-cfasync="false">
 openVipGold = function(vipTab){
 	var openTab = vipTab || 'gold';
@@ -11,7 +15,7 @@ openVipGold = function(vipTab){
 }
 $(document).ready(function(){
 	boomAddCss('addons/vip_gold/files/vip_gold.css');
-	appLeftMenu('crown', '<?php echo $lang['vip_tier_gold']; ?>', 'openVipGold(\'gold\');', 'vip_addons_menu');
+	appLeftMenu('crown', <?php echo json_encode($vipGoldMenuLabel); ?>, 'openVipGold(\'gold\');', 'vip_addons_menu');
 });
 </script>
 <?php } ?>
