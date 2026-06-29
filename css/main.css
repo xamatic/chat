@@ -431,7 +431,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 .tbreak { word-wrap:break-word; }
 /* OVERWRITE text - makes all text readable. */
 .chat_system, .sub_text, .sub_date, .input_item { 
-	color: rgb(255 255 255 / 88%) !important; 
+	color: rgb(211 211 211) !important;
 }
 
 /* button css */
