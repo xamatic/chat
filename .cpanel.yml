@@ -1,6 +1,6 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/eternity/public_html/chat-git/
+    - export DEPLOYPATH=/home/eternity/public_html/chat
     - /bin/mkdir -p "$DEPLOYPATH"
     - /usr/bin/rsync -rlptD --exclude='.git/' --exclude='.cpanel.yml' --exclude='.ftpquota' --exclude='.env' --exclude='error_log' --exclude='compare_results.txt' --exclude='local_pre_restore_*.tgz' --exclude='system/database.php' --exclude='system/settings.php' --exclude='system/settings.local.php' --exclude='addons/vip/system/payment/cashapp_credentials.php' --exclude='avatar/' --exclude='cover/' --exclude='upload/' --exclude='music/' --exclude='room_icon/' --exclude='gift/' --exclude='theme_public/' --exclude='goofy/' --exclude='updates files/update*' ./ "$DEPLOYPATH"
