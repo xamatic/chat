@@ -637,7 +637,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 .avflag { width:24px; height:auto; border-radius:2px; }
 
 /* sub menus */
-#log_menu { width:200px; height:auto; position:absolute; bottom:0; left:-5000px; z-index:99; border-radius:15px; overflow:hidden; }
+#log_menu { width:200px; height:auto; position:absolute; bottom:0; left:-5000px; z-index:300; border-radius:15px; overflow:hidden; }
 .submenu_item { padding:10px; display:table; table-layout:fixed; width:100%; cursor:pointer; font-size:14px; text-shadow:none; }
 .subm_title { font-size:13px; font-weight:bold; }
 .subm_sub { font-size:11px; }
