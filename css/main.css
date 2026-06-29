@@ -1813,6 +1813,56 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 
 /* bottom menu css */
 .footer_item { width:40px; height:100%; text-align:center; cursor:pointer; display:table-cell; max-width:16.66666666%; vertical-align:middle; position:relative; }
+.site_update_info.footer_item {
+	overflow:visible;
+	z-index:260;
+}
+.site_update_info .site_update_tooltip {
+	position:fixed;
+	left:10px;
+	bottom:58px;
+	display:block;
+	width:240px;
+	max-width:calc(100vw - 20px);
+	padding:10px 12px;
+	border-radius:8px;
+	background:rgba(12,12,12,0.94);
+	color:#fff;
+	font-size:12px;
+	line-height:1.35;
+	text-align:left;
+	white-space:normal;
+	overflow-wrap:break-word;
+	box-shadow:0 12px 28px rgba(0,0,0,0.38);
+	opacity:0;
+	visibility:hidden;
+	pointer-events:none;
+	transform:translateY(6px);
+	transition:opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+}
+.site_update_info .site_update_tooltip:after {
+	content:"";
+	position:absolute;
+	left:12px;
+	bottom:-7px;
+	border-width:7px 7px 0 7px;
+	border-style:solid;
+	border-color:rgba(12,12,12,0.94) transparent transparent transparent;
+}
+.site_update_info .site_update_tooltip p {
+	margin:0;
+	white-space:normal;
+}
+.site_update_info .site_update_tooltip p + p {
+	margin-top:4px;
+}
+.site_update_info:hover .site_update_tooltip,
+.site_update_info:focus .site_update_tooltip,
+.site_update_info:focus-within .site_update_tooltip {
+	opacity:1;
+	visibility:visible;
+	transform:translateY(0);
+}
 .privhide { display:none !important; }
 .i_btm  { font-size:20px;}
 
