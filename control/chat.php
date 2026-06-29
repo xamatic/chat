@@ -483,8 +483,39 @@ setUserRoom();
 </div>
 
 
+<?php
+$site_update_files = [
+	__FILE__,
+	BOOM_PATH . '/css/main.css',
+	BOOM_PATH . '/js/function_main.js',
+	BOOM_PATH . '/js/function_logged.js',
+	BOOM_PATH . '/system/function.php',
+];
+$site_updated_at = 0;
+foreach($site_update_files as $site_update_file){
+	if(file_exists($site_update_file)){
+		$site_updated_at = max($site_updated_at, filemtime($site_update_file));
+	}
+}
+if($site_updated_at < 1){
+	$site_updated_at = time();
+}
+$site_update_label = date('M j, Y g:i A T', $site_updated_at);
+$site_update_version = htmlspecialchars((string)($setting['bbfv'] ?? ''), ENT_QUOTES, 'UTF-8');
+$site_update_aria = htmlspecialchars('Site last updated ' . $site_update_label, ENT_QUOTES, 'UTF-8');
+?>
 <div id="wrap_footer" class="bfoot" data="1" >
 	<div id="my_menu">
+		<div id="site_update_info" class="site_update_info footer_item" tabindex="0" aria-label="<?php echo $site_update_aria; ?>">
+			<i class="fa fa-info-circle"></i>
+			<div class="site_update_tooltip">
+				<p class="site_update_title">Site update</p>
+				<p>Last updated: <?php echo $site_update_label; ?></p>
+				<?php if($site_update_version !== ''){ ?>
+				<p>Version: <?php echo $site_update_version; ?></p>
+				<?php } ?>
+			</div>
+		</div>
 		<?php if(usePlayer()){ ?>
 		<div class="show_menu footer_item menutrig" data-menu="player_menu" >
 			<i class="fa fa-play-circle footer_play i_btm"></i>
