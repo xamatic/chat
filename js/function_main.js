@@ -2223,8 +2223,13 @@ prepareLeft = function(size){
 	}
 }
 
-resetLeftPanel = function(){
+resetLeftPanel = function(keep){
+	var keepLeft = keep == 1 && $(window).width() > leftHide && $('#chat_left').is(':visible') && $('#chat_left_data .left_keep').length > 0;
 	$('#chat_left').css('width', defLeftWidth+'px');
+	if(keepLeft){
+		openLeft();
+		return;
+	}
 	closeLeft();
 }
 

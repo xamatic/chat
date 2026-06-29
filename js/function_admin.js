@@ -642,7 +642,10 @@ saveAdminSecurity = function(){
 saveAdminAi = function(){
 	$.post('system/action/system_save.php', { 
 		save_admin_ai: 1,
+		set_ai_provider: $('#set_ai_provider').val(),
 		set_openai_key: $('#set_openai_key').val(),
+		set_mistral_key: $('#set_mistral_key').val(),
+		set_mistral_model: $('#set_mistral_model').val(),
 		set_img_mod: $('#set_img_mod').val(),
 		}, function(response) {
 			if(response == 1){

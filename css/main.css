@@ -1567,6 +1567,12 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 #chat_room_dock { display:none; }
 
 /* room list CUSTOM */
+@media screen and (max-width:1100px) {
+	#room_dock_toggle_btn {
+		display: none !important;
+	}
+}
+
 @media screen and (min-width:1101px) {
     div[title="Room list"] { display:none; }
 

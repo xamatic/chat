@@ -581,11 +581,31 @@ function imageTumbGif($source, $path, $type, $size) {
 		@imagedestroy($src);
 	}
 }
-/* openai */
+/* ai moderation */
+
+function imageModerationProvider(){
+	global $setting;
+	$provider = isset($setting['ai_provider']) ? strtolower($setting['ai_provider']) : 'auto';
+	$openaiKey = isset($setting['openai_key']) ? $setting['openai_key'] : '';
+	$mistralKey = isset($setting['mistral_key']) ? $setting['mistral_key'] : '';
+	if($provider == 'openai' && $openaiKey != ''){
+		return 'openai';
+	}
+	if($provider == 'mistral' && $mistralKey != ''){
+		return 'mistral';
+	}
+	if($openaiKey != ''){
+		return 'openai';
+	}
+	if($mistralKey != ''){
+		return 'mistral';
+	}
+	return '';
+}
 
 function useImageModeration(){
 	global $setting;
-	if($setting['openai_key'] == '' || $setting['img_mod'] == 0){
+	if($setting['img_mod'] == 0 || imageModerationProvider() == ''){
 		return false;
 	}
 	return true;
@@ -596,12 +616,44 @@ function blockedImage($i){
 	if(!useImageModeration()){
 		return false;
 	}
+	if(imageModerationProvider() == 'mistral'){
+		return blockedImageMistral($i);
+	}
+	return blockedImageOpenai($i);
+}
+
+function moderationImageUrl($i){
+	global $setting;
+	if(preg_match('@^https?://@i', $i)){
+		return $i;
+	}
+	return rtrim($setting['domain'], '/') . '/' . ltrim($i, '/');
+}
+
+function moderationCategoryBlocked($categories){
+	global $setting;
+	$mc = arrayThisList($setting['mod_cat']);
+	if(!is_array($categories)){
+		return false;
+	}
+	foreach($categories as $category => $flagged){
+		if($flagged === true || $flagged === 1 || $flagged === '1' || $flagged === 'true'){
+			if(!in_array($category, $mc)){
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+function blockedImageOpenai($i){
+	global $setting;
 	$apikey = $setting['openai_key'];
 	$url = 'https://api.openai.com/v1/moderations';
 	$data = [
 		'model' => 'omni-moderation-latest',
 		'input' => [
-			[ 'type' => 'image_url', 'image_url' => [ 'url' => $setting['domain'] . '/' . $i ] ]
+			[ 'type' => 'image_url', 'image_url' => [ 'url' => moderationImageUrl($i) ] ]
 		]
 	];
 	$ch = curl_init($url);
@@ -622,19 +674,95 @@ function blockedImage($i){
     if (!isset($responseData['results']) || !is_array($responseData['results'])) {
         return false;
     }
-	$mc = arrayThisList($setting['mod_cat']);
 	foreach ($responseData['results'] as $result) {
-		if ($result['flagged']) {
-			foreach ($result['categories'] as $category => $flagged) {
-				if ($flagged) {
-					if(!in_array($category, $mc)){
-						deleteFile($i);
-						return true;
-					}
-				}
-			}
+		if (!empty($result['flagged']) && isset($result['categories']) && moderationCategoryBlocked($result['categories'])) {
+			deleteFile($i);
+			return true;
 		}
 	}
+	return false;
+}
+
+function mistralModerationContent($content){
+	if(is_array($content)){
+		$merged = '';
+		foreach($content as $part){
+			if(is_array($part) && isset($part['text'])){
+				$merged .= $part['text'];
+			}
+			else if(is_string($part)){
+				$merged .= $part;
+			}
+		}
+		$content = $merged;
+	}
+	$content = trim((string) $content);
+	$decoded = json_decode($content, true);
+	if(is_array($decoded)){
+		return $decoded;
+	}
+	if(preg_match('/\{.*\}/s', $content, $match)){
+		$decoded = json_decode($match[0], true);
+		if(is_array($decoded)){
+			return $decoded;
+		}
+	}
+	return array();
+}
+
+function blockedImageMistral($i){
+	global $setting;
+	$apikey = $setting['mistral_key'];
+	$model = isset($setting['mistral_model']) && $setting['mistral_model'] != '' ? $setting['mistral_model'] : 'mistral-small-latest';
+	$url = 'https://api.mistral.ai/v1/chat/completions';
+	$data = [
+		'model' => $model,
+		'temperature' => 0,
+		'max_tokens' => 180,
+		'response_format' => [ 'type' => 'json_object' ],
+		'messages' => [
+			[
+				'role' => 'user',
+				'content' => [
+					[
+						'type' => 'text',
+						'text' => 'Moderate this image for a public chat. Return only JSON with this exact shape: {"flagged":true|false,"categories":{"sexual":true|false,"hate":true|false,"harassment":true|false,"illicit":true|false,"violence":true|false}}. Flag only if the image clearly contains sexual content, hate, harassment, illicit content, or violence.'
+					],
+					[
+						'type' => 'image_url',
+						'image_url' => moderationImageUrl($i)
+					]
+				]
+			]
+		]
+	];
+	$ch = curl_init($url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		'Content-Type: application/json',
+		'Accept: application/json',
+		'Authorization: Bearer ' . $apikey
+	]);
+	$response = curl_exec($ch);
+	if ($response === false) {
+		return false;
+	}
+	curl_close($ch);
+	$responseData = json_decode($response, true);
+	if(!isset($responseData['choices'][0]['message']['content'])){
+		return false;
+	}
+	$verdict = mistralModerationContent($responseData['choices'][0]['message']['content']);
+	$flagged = isset($verdict['flagged']) && ($verdict['flagged'] === true || $verdict['flagged'] === 1 || $verdict['flagged'] === '1' || $verdict['flagged'] === 'true');
+	$categories = isset($verdict['categories']) ? $verdict['categories'] : array();
+	if($flagged && (empty($categories) || moderationCategoryBlocked($categories))){
+		deleteFile($i);
+		return true;
+	}
+	return false;
 }
 function moderateImageLink($t){
 	if(!useImageModeration()){
