@@ -1812,7 +1812,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 #chat_right_data { overflow:hidden; overflow-y:auto; position:relative; width:100%; padding-bottom:60px; }
 
 /* bottom menu css */
-.footer_item { width:40px; height:100%; text-align:center; cursor:pointer; display:table-cell; max-width:16.66666666%; vertical-align:middle; position:relative; }
+.footer_item { width:50px; height:100%; text-align:center; cursor:pointer; display:table-cell; max-width:16.66666666%; vertical-align:middle; position:relative; }
 .site_update_info.footer_item {
 	overflow:visible;
 	z-index:260;
