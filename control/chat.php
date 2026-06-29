@@ -205,7 +205,7 @@ setUserRoom();
 						<div value="0" id="main_emoticon" class="back_box bshadow">
 							<div class="emo_head bborder main_emo_head">
 								<?php if(canEmo()){ ?>
-									<div data="base_emo" class="bselected emo_menu emo_menu_item"><img class="emo_select" src="emoticon_icon/base_emo.png"/></div>
+									<div data="base_emo" class="bselected emo_menu emo_menu_item"><img class="emo_select" src="emoticon_icon/base_emo.png<?php echo boomFileVersion(); ?>"/></div>
 									<?php echo emoItem(1); ?>
 								<?php } ?>
 								<div class="empty_emo">
@@ -377,7 +377,7 @@ setUserRoom();
 				<div id="private_emoticon" class="back_box bshadow">
 					<div class="emo_head bborder private_emo_head">
 						<?php if(canEmo()){ ?>
-							<div data="base_emo" class="bselected emo_menu emo_menu_item_priv"><img class="emo_select" src="emoticon_icon/base_emo.png"/></div>
+							<div data="base_emo" class="bselected emo_menu emo_menu_item_priv"><img class="emo_select" src="emoticon_icon/base_emo.png<?php echo boomFileVersion(); ?>"/></div>
 							<?php echo emoItem(2); ?>
 						<?php } ?>
 						<div class="empty_emo">

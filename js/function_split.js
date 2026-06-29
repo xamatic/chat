@@ -335,6 +335,7 @@ hideModal = function(){
 hideOver = function(){
 	$('#over_modal_content, #over_emodal_content').html('');
 	$('#over_modal, #over_emodal').hide();
+	$('body').removeClass('room_pass_prompt_open');
 	$('#public_theme_live_style').remove();
 	$('#over_modal').removeClass('effects_modal_backdrop');
 	$('#over_modal_in').removeClass('effects_modal_shell');

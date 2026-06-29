@@ -2256,6 +2256,7 @@ switchRoom = function(room, pass, rank){
 				room_id: room,
 				}, function(response) {
 					overModal(response);
+					$('body').addClass('room_pass_prompt_open');
 					waitJoin = 0;
 			});
 		}

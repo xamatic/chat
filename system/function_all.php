@@ -2673,7 +2673,7 @@ function emoItem($type){
 	$dir = glob('emoticon/*' , GLOB_ONLYDIR);
 	foreach($dir as $dirnew){
 		$emoitem = str_replace('emoticon/', '', $dirnew);
-		$emo .= '<div data="' . $emoitem . '" class="emo_menu ' . $emoclass . '"><img class="emo_select" src="emoticon_icon/' . $emoitem . '.png"/></div>';
+		$emo .= '<div data="' . $emoitem . '" class="emo_menu ' . $emoclass . '"><img class="emo_select" src="emoticon_icon/' . $emoitem . '.png' . boomFileVersion() . '"/></div>';
 	}
 	return $emo;
 }

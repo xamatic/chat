@@ -1049,11 +1049,11 @@ function uCountry($user){
 /* main ranking functions */
 
 function systemRank($rank, $type){
-	return '<img src="default_images/rank/' . rankIcon($rank) . '" data-r="' . $rank . '" class="' . $type . '"/>';
+	return '<img src="default_images/rank/' . rankIcon($rank) . boomFileVersion() . '" data-r="' . $rank . '" class="' . $type . '"/>';
 }
 function roomRank($rank, $type){
 	if($rank > 0){
-		return '<img src="default_images/rank/' . roomRankIcon($rank) . '" data-r="' . $rank . '" class="' . $type . '"/>';
+		return '<img src="default_images/rank/' . roomRankIcon($rank) . boomFileVersion() . '" data-r="' . $rank . '" class="' . $type . '"/>';
 	}
 }
 function chatRank($user, $type = 'chat_rank'){
