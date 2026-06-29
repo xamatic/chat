@@ -675,6 +675,21 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 .popout_window_close:hover {
 	background:rgba(150,150,150,0.18);
 }
+@media screen and (min-width: 769px){
+	.desktop_popout_window .float_top .ftop_opt_btn.show_menu,
+	.desktop_popout_window .float_ctop .ftop_opt_btn.show_menu,
+	.desktop_popout_window .hide_menu,
+	.desktop_popout_window #reaction_picker_close,
+	.desktop_modal_window > .modal_close,
+	.desktop_modal_window .modal_top_item.cancel_modal,
+	.desktop_modal_window .modal_top_item.cancel_over,
+	.desktop_modal_window .modal_top_item.cancel_top,
+	.desktop_modal_window .modal_top_item.close_modal,
+	.desktop_modal_window .modal_top_item.close_over,
+	.desktop_modal_window .modal_top_item.close_top {
+		display:none !important;
+	}
+}
 .desktop_popout_window .ui-resizable-handle,
 .desktop_modal_window .ui-resizable-handle {
 	z-index:25 !important;

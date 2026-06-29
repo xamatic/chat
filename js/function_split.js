@@ -252,10 +252,21 @@ syncLargeModalFxClasses = function(){
 var desktopPopoutZ = 420;
 var desktopModalZ = 1000;
 var legacyMenuRequest = 0;
+var anchoredDesktopMenus = ['setting_menu', 'chat_main_menu', 'room_options_menu'];
 
 desktopPopoutMode = function(){
 	var limit = (typeof menuHide !== 'undefined') ? menuHide : 767;
 	return $(window).width() > limit;
+}
+anchoredDesktopMenu = function(id){
+	return $.inArray(id, anchoredDesktopMenus) !== -1;
+}
+desktopPopoutAllowed = function(item){
+	var target = $(item);
+	if(target.hasClass('sysmenu') && anchoredDesktopMenu(target.attr('id'))){
+		return false;
+	}
+	return true;
 }
 legacyMenuTrigger = function(item){
 	return $(item).closest('#chat_head, #left_menu').length > 0;
@@ -369,6 +380,10 @@ activateDesktopPopout = function(item){
 	}
 	var target = $(item);
 	if(!target.length || !target.is(':visible')){
+		return;
+	}
+	if(!desktopPopoutAllowed(target)){
+		resetDesktopPopout(target);
 		return;
 	}
 	addPopoutBar(target);
@@ -1034,7 +1049,7 @@ loadLanguage = function(lang){
 	});
 }
 showMenu = function(id, forceLegacy){
-	if(forceLegacy){
+	if(forceLegacy || anchoredDesktopMenu(id)){
 		showLegacyMenu(id);
 		return;
 	}
@@ -1081,7 +1096,7 @@ prepareMenu = function(id){
 appendMenu = function(id, data){
 	var container = $('#'+id).attr('data');
 	$('#'+container).html(data);
-	if($('#'+id).is(':visible') && !$('#'+id).hasClass('legacy_menu_open')){
+	if($('#'+id).is(':visible') && !$('#'+id).hasClass('legacy_menu_open') && !anchoredDesktopMenu(id)){
 		activateDesktopPopout('#'+id);
 	}
 }
@@ -1294,7 +1309,12 @@ $(document).ready(function(){
 	$(window).on('resize.desktopPopouts', function(){
 		if(desktopPopoutMode()){
 			$('.sysmenu:visible, #reaction_picker_menu.show_menu').each(function(){
-				activateDesktopPopout(this);
+				if(desktopPopoutAllowed(this)){
+					activateDesktopPopout(this);
+				}
+				else {
+					resetDesktopPopout(this);
+				}
 			});
 			if($('#av_menu').css('left') != '-5000px'){
 				activateDesktopPopout('#av_menu');
