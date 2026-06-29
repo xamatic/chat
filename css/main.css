@@ -1522,7 +1522,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 #global_chat { display:table; width:100%;  overflow:hidden;}
 
 /* chat left css */
-#chat_left { height:100%; overflow:hidden; overflow-y: auto; max-width:100%; backdrop-filter:brightness(.5); }
+#chat_left { height:100%; overflow:hidden; overflow-y: auto; max-width:100%; background-color: rgba(0,0,0,0.45); }
 .cleft, .cleft2 { width:200px; max-width:100%; }
 .cleft { overflow:hidden; padding:0; display:table-cell; vertical-align:top; box-shadow:none !important; }
 .cleft2 { position:absolute; left:50px; top:0; z-index:201; padding-bottom:0; max-width:calc(100% - 50px) !important; }
@@ -1738,7 +1738,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 /* chat right css */
 .panel_bar { display:table; width:100%; table-layout:fixed; height:40px; }
 .panel_bar_item, .panel_option, .left_bar_item { display:table-cell; vertical-align:middle; width:40px; text-align:center; cursor:pointer; }
-#chat_right{ height:100%; backdrop-filter:brightness(.5); }
+#chat_right{ height:100%; background: rgba(0,0,0,0.45); }
 .cright, .cright2 { width:280px; }
 .cright { overflow:hidden; padding:0;  display:table-cell;  vertical-align:top; max-width:100% !important; box-shadow:none !important; }
 .cright2 { position:absolute; top:50px; right:0; overflow:hidden; z-index:201; padding-bottom:0px; display:none; max-width:100% !important; }
