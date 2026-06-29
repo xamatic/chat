@@ -62,7 +62,9 @@ selectIt = function(){
 }
 hideAll = function(){
 	$('.hideall').hide();
-	$('.sysmenu').hide();
+	if(!desktopPopoutMode()){
+		$('.sysmenu').hide();
+	}
 	vidaudOff();
 }
 adjustSubMenu = function(){
@@ -247,6 +249,276 @@ syncLargeModalFxClasses = function(){
 		$('#large_modal_in, #large_modal_content').addClass(classes.join(' '));
 	}
 }
+var desktopPopoutZ = 420;
+var desktopModalZ = 1000;
+
+desktopPopoutMode = function(){
+	var limit = (typeof menuHide !== 'undefined') ? menuHide : 767;
+	return $(window).width() > limit;
+}
+popoutBounds = function(){
+	if($('#global_chat').length){
+		var area = $('#global_chat');
+		var offset = area.offset() || { left: 0, top: 0 };
+		return {
+			left: offset.left,
+			top: offset.top,
+			right: offset.left + area.outerWidth(),
+			bottom: offset.top + area.outerHeight(),
+			width: area.outerWidth(),
+			height: area.outerHeight()
+		};
+	}
+	return {
+		left: 0,
+		top: 0,
+		right: $(window).width(),
+		bottom: $(window).height(),
+		width: $(window).width(),
+		height: $(window).height()
+	};
+}
+popoutContainment = function(){
+	var bounds = popoutBounds();
+	return [bounds.left, bounds.top, bounds.right, bounds.bottom];
+}
+bringPopoutFront = function(item){
+	var layer = $(item).hasClass('modal_in') ? ++desktopModalZ : ++desktopPopoutZ;
+	$(item).css('z-index', layer);
+}
+addPopoutBar = function(item){
+	var target = $(item);
+	if(target.children('.popout_window_bar').length){
+		return;
+	}
+	target.prepend('<div class="popout_window_bar"><div class="popout_window_grip"><i class="fa fa-grip-lines"></i></div><button type="button" class="popout_window_close" aria-label="Close"><i class="fa fa-times"></i></button></div>');
+}
+clampPopoutPosition = function(item){
+	var target = $(item);
+	if(!target.length || !target.is(':visible')){
+		return;
+	}
+	var bounds = popoutBounds();
+	var width = target.outerWidth();
+	var height = target.outerHeight();
+	var offset = target.offset() || { left: bounds.left, top: bounds.top };
+	var left = offset.left;
+	var top = offset.top;
+	var maxLeft = Math.max(bounds.left, bounds.right - width);
+	var maxTop = Math.max(bounds.top, bounds.bottom - height);
+	if(left < bounds.left){
+		left = bounds.left;
+	}
+	if(top < bounds.top){
+		top = bounds.top;
+	}
+	if(left > maxLeft){
+		left = maxLeft;
+	}
+	if(top > maxTop){
+		top = maxTop;
+	}
+	target.offset({ left: left, top: top });
+}
+placePopoutForDesktop = function(item){
+	var target = $(item);
+	if(target.data('desktop-popout-placed')){
+		clampPopoutPosition(target);
+		return;
+	}
+	var offset = target.offset() || { left: 10, top: 10 };
+	target.css({
+		position: 'fixed',
+		left: offset.left - $(window).scrollLeft(),
+		top: offset.top - $(window).scrollTop(),
+		right: 'auto',
+		bottom: 'auto',
+		margin: 0
+	});
+	target.data('desktop-popout-placed', 1);
+	clampPopoutPosition(target);
+}
+activateDesktopPopout = function(item){
+	if(!desktopPopoutMode()){
+		return;
+	}
+	var target = $(item);
+	if(!target.length || !target.is(':visible')){
+		return;
+	}
+	addPopoutBar(target);
+	target.addClass('desktop_popout_window');
+	if(!target.data('desktop-popout-sized')){
+		target.css('height', 'auto');
+	}
+	placePopoutForDesktop(target);
+	bringPopoutFront(target);
+	var bounds = popoutBounds();
+	var maxWidth = Math.max(220, bounds.width);
+	var maxHeight = Math.max(120, bounds.height);
+	target.css({
+		'max-width': maxWidth,
+		'max-height': maxHeight
+	});
+	if($.fn.draggable){
+		if(target.data('ui-draggable')){
+			target.draggable('option', 'containment', popoutContainment());
+		}
+		else {
+			target.draggable({
+				handle: '.popout_window_grip',
+				containment: popoutContainment(),
+				cancel: 'input, textarea, select, button, a, .ui-resizable-handle',
+				start: function(){
+					bringPopoutFront(this);
+				},
+				stop: function(){
+					clampPopoutPosition(this);
+				}
+			});
+		}
+	}
+	if($.fn.resizable){
+		if(target.data('ui-resizable')){
+			target.resizable('option', {
+				maxWidth: maxWidth,
+				maxHeight: maxHeight
+			});
+		}
+		else {
+			target.resizable({
+				handles: 'n,e,s,w,se,sw,ne,nw',
+				minWidth: 200,
+				minHeight: 90,
+				maxWidth: maxWidth,
+				maxHeight: maxHeight,
+				start: function(){
+					target.data('desktop-popout-sized', 1);
+					bringPopoutFront(this);
+				},
+				stop: function(){
+					clampPopoutPosition(this);
+				}
+			});
+		}
+	}
+}
+centerDesktopModal = function(item){
+	var target = $(item);
+	if(target.data('desktop-popout-placed')){
+		clampPopoutPosition(target);
+		return;
+	}
+	var bounds = popoutBounds();
+	var width = target.outerWidth();
+	var height = target.outerHeight();
+	var left = bounds.left + Math.max(10, Math.round((bounds.width - width) / 2));
+	var top = bounds.top + Math.max(10, Math.round((bounds.height - height) / 2));
+	target.css({
+		position: 'fixed',
+		left: left - $(window).scrollLeft(),
+		top: top - $(window).scrollTop(),
+		right: 'auto',
+		bottom: 'auto',
+		margin: 0
+	});
+	target.data('desktop-popout-placed', 1);
+	clampPopoutPosition(target);
+}
+activateDesktopModal = function(item){
+	if(!desktopPopoutMode()){
+		return;
+	}
+	var target = $(item);
+	if(!target.length || !target.is(':visible')){
+		return;
+	}
+	addPopoutBar(target);
+	target.addClass('desktop_modal_window');
+	if(!target.data('desktop-popout-sized')){
+		target.css('width', '');
+		target.css('width', target.outerWidth());
+	}
+	centerDesktopModal(target);
+	bringPopoutFront(target);
+	var bounds = popoutBounds();
+	target.css({
+		'max-width': bounds.width,
+		'max-height': bounds.height
+	});
+	if($.fn.draggable){
+		if(target.data('ui-draggable')){
+			target.draggable('option', 'containment', popoutContainment());
+		}
+		else {
+			target.draggable({
+				handle: '.popout_window_grip',
+				containment: popoutContainment(),
+				cancel: 'input, textarea, select, button, a, .ui-resizable-handle',
+				start: function(){
+					bringPopoutFront(this);
+				},
+				stop: function(){
+					clampPopoutPosition(this);
+				}
+			});
+		}
+	}
+	if($.fn.resizable){
+		if(target.data('ui-resizable')){
+			target.resizable('option', {
+				maxWidth: bounds.width,
+				maxHeight: bounds.height
+			});
+		}
+		else {
+			target.resizable({
+				handles: 'n,e,s,w,se,sw,ne,nw',
+				minWidth: 260,
+				minHeight: 160,
+				maxWidth: bounds.width,
+				maxHeight: bounds.height,
+				start: function(){
+					target.data('desktop-popout-sized', 1);
+					bringPopoutFront(this);
+				},
+				stop: function(){
+					clampPopoutPosition(this);
+				}
+			});
+		}
+	}
+}
+resetDesktopPopout = function(item){
+	var target = $(item);
+	if(target.data('ui-draggable')){
+		target.draggable('destroy');
+	}
+	if(target.data('ui-resizable')){
+		target.resizable('destroy');
+	}
+	target.removeClass('desktop_popout_window desktop_modal_window');
+	target.removeData('desktop-popout-placed desktop-popout-sized');
+	target.children('.popout_window_bar').remove();
+	target.css({
+		left: '',
+		top: '',
+		right: '',
+		bottom: '',
+		margin: '',
+		position: '',
+		width: '',
+		height: '',
+		'max-width': '',
+		'max-height': '',
+		'z-index': ''
+	});
+}
+resetDesktopPopouts = function(){
+	$('.desktop_popout_window, .desktop_modal_window').each(function(){
+		resetDesktopPopout(this);
+	});
+}
 showModal = function(r,s){
 	hideAll();
 	hideModal();
@@ -259,6 +531,7 @@ showModal = function(r,s){
 	$('.small_modal_in').css('max-width', s+'px');
 	$('#small_modal_content').html(r);
 	$('#small_modal').show();
+	activateDesktopModal('#small_modal_in');
 	offScroll();
 	modalTop();
 	selectIt();
@@ -276,6 +549,7 @@ showEmptyModal = function(r,s){
 	$('#large_modal_content').html(r);
 	syncLargeModalFxClasses();
 	$('#large_modal').show();
+	activateDesktopModal('#large_modal_in');
 	offScroll();
 	modalTop();
 	selectIt();
@@ -292,6 +566,7 @@ overModal = function(r,s){
 	$('.over_modal_in').css('max-width', s+'px');
 	$('#over_modal_content').html(r);
 	$('#over_modal').show();
+	activateDesktopModal('#over_modal_in');
 	offScroll();
 	selectIt();
 }
@@ -307,6 +582,7 @@ overEmptyModal = function(r,s){
 	$('.over_emodal_in').css('max-width', s+'px');
 	$('#over_emodal_content').html(r);
 	$('#over_emodal').show();
+	activateDesktopModal('#over_emodal_in');
 	offScroll();
 	selectIt();
 }
@@ -322,6 +598,7 @@ topModal = function(r,s){
 	$('.top_modal_in').css('max-width', s+'px');
 	$('#top_modal_content').html(r);
 	$('#top_modal').show();
+	activateDesktopModal('#top_modal_in');
 	offScroll();
 	selectIt();
 }
@@ -367,13 +644,18 @@ insideChat = function(){
 	}
 }
 offScroll = function(){
-	if(!insideChat()){
+	if(!insideChat() && !desktopPopoutMode()){
 		$('body').addClass('modal_open');
 	}
 }
 onScroll = function(){
 	if(!insideChat()){
-		$('body').removeClass('modal_open');
+		if(!desktopPopoutMode()){
+			$('body').removeClass('modal_open');
+		}
+		else {
+			$('body').removeClass('modal_open').css('overflow', '');
+		}
 	}
 	else {
 		$('body').css('overflow', 'hidden');
@@ -702,18 +984,31 @@ loadLanguage = function(lang){
 }
 showMenu = function(id){
 	vidaudOff();
-	if($('#'+id).is(':visible')){
-		$('#'+id).hide();
+	var target = $('#'+id);
+	if(target.is(':visible')){
+		target.hide();
+		if(!desktopPopoutMode()){
+			$('.sysmenu').each(function(){
+				if($(this).attr('id') != id){
+					$(this).hide();
+				}
+			});
+		}
 	}
 	else {
-		$('#'+id).show().scrollTop(0);
+		target.show().scrollTop(0);
 		selectIt();
-	}
-	$('.sysmenu').each(function(){
-		if($(this).attr('id') != id){
-			$(this).hide();
+		if(desktopPopoutMode()){
+			activateDesktopPopout(target);
 		}
-	});
+		else {
+			$('.sysmenu').each(function(){
+				if($(this).attr('id') != id){
+					$(this).hide();
+				}
+			});
+		}
+	}
 }
 prepareMenu = function(id){
 	if($('#'+id).is(':visible')){
@@ -729,9 +1024,14 @@ prepareMenu = function(id){
 appendMenu = function(id, data){
 	var container = $('#'+id).attr('data');
 	$('#'+container).html(data);
+	if($('#'+id).is(':visible')){
+		activateDesktopPopout('#'+id);
+	}
 }
 hideAllMenu = function(){
-	$('.sysmenu').hide();
+	if(!desktopPopoutMode()){
+		$('.sysmenu').hide();
+	}
 }
 hideMenu = function(id){
 	$('#'+id).hide();
@@ -884,8 +1184,66 @@ $(document).ready(function(){
 	
 	$(document).click(function(e){
 		var target = $(e.target);
-		if(!target.parents('.sysmenu').length && !target.parents('.menutrig').length){
+		if(!desktopPopoutMode() && !target.parents('.sysmenu').length && !target.parents('.menutrig').length){
 			hideAllMenu();
+		}
+	});
+
+	$(document).on('mousedown', '.desktop_popout_window, .desktop_modal_window', function(){
+		bringPopoutFront(this);
+	});
+
+	$(document).on('click', '.popout_window_close', function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		var target = $(this).closest('.desktop_popout_window, .desktop_modal_window');
+		var id = target.attr('id');
+		if(id == 'av_menu' && typeof resetAvMenu === 'function'){
+			resetAvMenu();
+		}
+		else if(id == 'log_menu' && typeof resetLogMenu === 'function'){
+			resetLogMenu();
+		}
+		else if(id == 'reaction_picker_menu' && typeof closeReactionMenu === 'function'){
+			closeReactionMenu();
+		}
+		else if(target.hasClass('modal_in')){
+			var wrap = target.closest('.modal_back');
+			if(wrap.attr('id') == 'small_modal' || wrap.attr('id') == 'large_modal'){
+				hideModal();
+			}
+			else if(wrap.attr('id') == 'over_modal' || wrap.attr('id') == 'over_emodal'){
+				hideOver();
+			}
+			else if(wrap.attr('id') == 'top_modal'){
+				hideTop();
+			}
+			else {
+				wrap.hide();
+			}
+		}
+		else {
+			target.hide();
+		}
+	});
+
+	$(window).on('resize.desktopPopouts', function(){
+		if(desktopPopoutMode()){
+			$('.sysmenu:visible, #reaction_picker_menu.show_menu').each(function(){
+				activateDesktopPopout(this);
+			});
+			if($('#av_menu').css('left') != '-5000px'){
+				activateDesktopPopout('#av_menu');
+			}
+			if($('#log_menu').css('left') != '-5000px'){
+				activateDesktopPopout('#log_menu');
+			}
+			$('.modal_in:visible').each(function(){
+				activateDesktopModal(this);
+			});
+		}
+		else {
+			resetDesktopPopouts();
 		}
 	});
 	

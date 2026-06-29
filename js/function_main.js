@@ -2663,6 +2663,9 @@ openReactionMenu = function(scope, target){
 	reactionMenuScope = scope;
 	reactionMenuTarget = target;
 	$('#reaction_picker_menu').addClass('show_menu');
+	if(typeof activateDesktopPopout === 'function'){
+		activateDesktopPopout('#reaction_picker_menu');
+	}
 	if(Array.isArray(reactionEmojiCache) && reactionEmojiCache.length > 0){
 		renderReactionEmojiMenu(reactionEmojiCache);
 		return true;
@@ -4169,7 +4172,7 @@ $(document).ready(function(){
 	});
 
 	$(document).on('click', function(event){
-		if(!$(event.target).closest('#reaction_picker_menu, .msg_react_more, .log_react').length){
+		if(!desktopPopoutMode() && !$(event.target).closest('#reaction_picker_menu, .msg_react_more, .log_react').length){
 			closeReactionMenu();
 		}
 		if(!$(event.target).closest('#slash_command_menu, #content, #message_content').length){

@@ -591,6 +591,64 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 .floatopt { padding:5px; font-weight:bold; }
 .float_section { padding:10px 0; }
 .float_menu { border-radius:10px; overflow:hidden; overflow-y:auto; max-width:calc(100% - 10px); margin:5px; }
+.desktop_popout_window {
+	min-width:200px;
+	min-height:90px;
+	overflow:auto !important;
+	cursor:default !important;
+}
+.desktop_modal_window {
+	min-width:260px;
+	min-height:160px;
+	overflow:auto;
+	cursor:default !important;
+}
+.popout_window_bar {
+	height:24px;
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	padding:0 4px 0 8px;
+	border-bottom:1px solid rgba(150,150,150,0.18);
+	background:rgba(0,0,0,0.12);
+}
+.popout_window_grip {
+	flex:1;
+	height:100%;
+	display:flex;
+	align-items:center;
+	cursor:move;
+	opacity:0.72;
+}
+.popout_window_close {
+	width:22px;
+	height:22px;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	padding:0;
+	border:0;
+	border-radius:50%;
+	color:inherit;
+	background:transparent;
+	cursor:pointer;
+}
+.popout_window_close:hover {
+	background:rgba(150,150,150,0.18);
+}
+.desktop_popout_window .ui-resizable-handle,
+.desktop_modal_window .ui-resizable-handle {
+	z-index:5 !important;
+}
+.desktop_popout_window .ui-resizable-se,
+.desktop_modal_window .ui-resizable-se {
+	right:3px;
+	bottom:3px;
+	width:12px;
+	height:12px;
+	border-right:2px solid rgba(150,150,150,0.5);
+	border-bottom:2px solid rgba(150,150,150,0.5);
+}
 .backglob {backdrop-filter: none !important;} /* Fix for an issue revolving around drag positioning. */
 /* menus positions */
 #private_opt { position:absolute; right:0; top:0; margin:5px; z-index:40; display:none; }
@@ -2326,6 +2384,20 @@ canvas#view { width: 100%; height: 100%; display:block; }
 .over_modal_in { border-radius:20px; margin: 6% auto; max-width:500px; width: 96%; position:relative; }
 .top_modal_in { border-radius:20px; margin: 6% auto; max-width:500px; width: 96%; position:relative; }
 .over_emodal_in { border-radius:20px; margin: 6% auto; max-width:500px; width: 96%; position:relative; }
+@media screen and (min-width: 769px){
+	.modal_back,
+	.modal_back.effects_modal_backdrop {
+		background:transparent !important;
+		background-color:transparent !important;
+		pointer-events:none;
+		overflow:visible;
+		cursor:default;
+	}
+	.modal_in {
+		pointer-events:auto;
+		margin:0;
+	}
+}
 .effects_modal_backdrop {
 	background:
 		radial-gradient(70% 80% at 10% 15%, rgba(56,165,255,0.18), rgba(56,165,255,0) 60%),

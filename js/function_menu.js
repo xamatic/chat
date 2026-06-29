@@ -183,6 +183,7 @@ $(document).ready(function(){
 				'height': avMenu,
 				'z-index': 99,
 			}, 100);
+			activateDesktopPopout('#av_menu');
 		}
 	});
 
@@ -223,6 +224,7 @@ $(document).ready(function(){
 				'height': avMenu,
 				'z-index': 202,
 			});
+			activateDesktopPopout('#av_menu');
 		}	
 	});
 
@@ -297,6 +299,7 @@ $(document).ready(function(){
 			'top': top,
 			'height': menuH
 		});
+		activateDesktopPopout($menuWrap);
 	}
 
 	$(document).on('click', '.log_content', function(e){
@@ -350,11 +353,13 @@ $(document).ready(function(){
 			positionLogMenuAtClick(e);
 		}
 		
-		$(document).off('click.logmenuClose').one('click.logmenuClose', function(ev){
-			if(!$(ev.target).closest('#log_menu, .log_content').length){
-				resetLogMenu();
-			}
-		});
+		if(!desktopPopoutMode()){
+			$(document).off('click.logmenuClose').one('click.logmenuClose', function(ev){
+				if(!$(ev.target).closest('#log_menu, .log_content').length){
+					resetLogMenu();
+				}
+			});
+		}
 	});
 	
 	$(document).on('mouseenter', '#private_content .outpriv', function(){		
@@ -374,12 +379,14 @@ $(document).ready(function(){
 	});
 
 	$(document).on('mouseleave', '#log_menu', function(){
-		resetLogMenu();
+		if(!desktopPopoutMode()){
+			resetLogMenu();
+		}
 	});
 
 	$(document).click(function(e){
 		var container = $(".avtrig");
-		if(!$(e.target).hasClass('avtrig')){
+		if(!desktopPopoutMode() && !$(e.target).hasClass('avtrig')){
 			if (!container.is(e.target) && container.has(e.target).length === 0){
 					resetAvMenu();
 			}
