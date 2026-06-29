@@ -429,6 +429,10 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 .fleft { float:left; }
 .bellips { text-overflow:ellipsis; white-space:nowrap; overflow:hidden; }
 .tbreak { word-wrap:break-word; }
+/* OVERWRITE text - makes all text readable. */
+.chat_system, .sub_text, .sub_date, .input_item { 
+	color: rgb(255 255 255 / 88%) !important; 
+}
 
 /* button css */
 .btn_ellips { max-width:120px; overflow:hidden; text-overflow:ellipsis; }
@@ -1335,7 +1339,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 .msg_react_count { display:inline-flex; align-items:center; gap:2px; padding:1px 5px; border-radius:12px; font-size:10px; }
 .msg_react_icon { width:12px; height:12px; object-fit:contain; }
 .msg_react_total { min-width:10px; text-align:center; font-weight:bold; }
-#reaction_picker_menu { position:fixed; right:10px; bottom:58px; width:300px; max-width:calc(100vw - 16px); z-index:220; display:none; }
+#reaction_picker_menu { position:fixed; right:10px; bottom:58px; width:300px; max-width:calc(100vw - 16px); z-index:400; display:none; }
 #reaction_picker_menu.show_menu { display:block; }
 .reaction_picker_head { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; }
 .reaction_picker_title { font-size:13px; font-weight:bold; }
@@ -1520,7 +1524,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 #global_chat { display:table; width:100%;  overflow:hidden;}
 
 /* chat left css */
-#chat_left { height:100%; overflow:hidden; overflow-y: auto; max-width:100%; }
+#chat_left { height:100%; overflow:hidden; overflow-y: auto; max-width:100%; backdrop-filter:brightness(.5); }
 .cleft, .cleft2 { width:200px; max-width:100%; }
 .cleft { overflow:hidden; padding:0; display:table-cell; vertical-align:top; box-shadow:none !important; }
 .cleft2 { position:absolute; left:50px; top:0; z-index:201; padding-bottom:0; max-width:calc(100% - 50px) !important; }
@@ -1736,7 +1740,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 /* chat right css */
 .panel_bar { display:table; width:100%; table-layout:fixed; height:40px; }
 .panel_bar_item, .panel_option, .left_bar_item { display:table-cell; vertical-align:middle; width:40px; text-align:center; cursor:pointer; }
-#chat_right{ height:100%; }
+#chat_right{ height:100%; backdrop-filter:brightness(.5); }
 .cright, .cright2 { width:280px; }
 .cright { overflow:hidden; padding:0;  display:table-cell;  vertical-align:top; max-width:100% !important; box-shadow:none !important; }
 .cright2 { position:absolute; top:50px; right:0; overflow:hidden; z-index:201; padding-bottom:0px; display:none; max-width:100% !important; }

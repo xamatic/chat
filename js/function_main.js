@@ -3144,7 +3144,7 @@ renderExtensionsPanel = function(){
 	var fallbackExtensions = [
 		{
 			title: 'Codychat Custom Theme',
-			desc: 'Apply custom visual styling and theme controls for your chat.',
+			desc: 'Customize any codychat client with your own theme and visual styling controls.',
 			buttons: [
 				{ label: 'GitHub', url: 'https://github.com/xamatic/Codychat-Custom-Theme', kind: 'github' },
 				{ label: 'Stylus', url: 'https://userstyles.world/style/26426', kind: 'stylus' }
@@ -3154,7 +3154,7 @@ renderExtensionsPanel = function(){
 		},
 		{
 			title: 'Youtube Viewer',
-			desc: 'Watch and share YouTube content from inside your chat panel.',
+			desc: 'Update your mood based on the youtube videos you watch.',
 			buttons: [
 				{ label: 'GreasyFork', url: 'https://greasyfork.org/en/scripts/573128-chats-mood-changer', kind: 'script' }
 			],
@@ -3164,7 +3164,7 @@ renderExtensionsPanel = function(){
 
 	var extInfo = {
 		'custom theme': {
-			desc: 'Apply custom visual styling and theme controls for your chat.',
+			desc: 'Customize any codychat client with your own theme and visual styling controls.',
 			buttons: [
 				{ label: 'GitHub', url: 'https://github.com/xamatic/Codychat-Custom-Theme', kind: 'github' },
 				{ label: 'Stylus', url: 'https://userstyles.world/style/26426', kind: 'stylus' }
@@ -3172,7 +3172,7 @@ renderExtensionsPanel = function(){
 
 		},
 		'codychat custom theme': {
-			desc: 'Apply custom visual styling and theme controls for your chat.',
+			desc: 'Customize any codychat client with your own theme and visual styling controls.',
 			buttons: [
 				{ label: 'GitHub', url: 'https://github.com/xamatic/Codychat-Custom-Theme', kind: 'github' },
 				{ label: 'Stylus', url: 'https://userstyles.world/style/26426', kind: 'stylus' }
@@ -3180,7 +3180,7 @@ renderExtensionsPanel = function(){
 			]
 		},
 		'mood changer': {
-			desc: 'Change chat mood based on youtube videos you watch.',
+			desc: 'Update your mood based on the youtube videos you watch.',
 			buttons: [
 				{ label: 'GreasyFork', url: 'https://greasyfork.org/en/scripts/573128-chats-mood-changer', kind: 'script' }
 			]
