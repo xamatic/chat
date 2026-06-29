@@ -1,0 +1,41 @@
+# --- IDEs and System Files ---
+.vscode/
+.idea/
+.github/
+.ftpquota
+error_log
+compare_results.txt
+
+# --- Dependencies ---
+node_modules/
+
+# --- Environment & Configuration (Preserved on server) ---
+# We ignore these locally because the script indicates they are 
+# server-specific or contain sensitive credentials.
+system/database.php
+system/settings.php
+system/settings.local.php
+.env
+addons/vip/system/payment/cashapp_credentials.php
+
+# --- User-Generated Content / Media ---
+# These paths are excluded in your rsync to prevent overwriting 
+# uploads with empty local folders.
+avatar/
+cover/
+upload/
+music/
+room_icon/
+gift/
+theme_public/
+css/themes/
+goofy/
+*files.zip*
+updates files/update*
+
+# --- Deployment Artifacts ---
+# Matches the patterns used for the temporary tarballs
+chat_release_*.tar.gz
+chat_full_*.tar.gz
+chat_deploy_runner_*.sh
+scripts/deploy-chat-safe.ps1

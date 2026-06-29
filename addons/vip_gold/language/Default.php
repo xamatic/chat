@@ -1,0 +1,71 @@
+<?php
+$lang['vip_buy'] = 'Gold VIP';
+$lang['vip_plan'] = 'Plans';
+$lang['vip_transaction'] = 'Transaction';
+$lang['vip_mode_status'] = 'Vip module status';
+$lang['vip_take'] = 'View plans';
+$lang['vip_submit'] = 'Checkout';
+$lang['vset1'] = '7 days price';
+$lang['vset2'] = '1 month price';
+$lang['vset3'] = '3 months price';
+$lang['vset4'] = '1 year price';
+$lang['vset5'] = 'Lifetime price';
+$lang['vset6'] = 'Star VIP 1 month price';
+$lang['vset7'] = 'Star VIP 3 months price';
+$lang['vset8'] = 'Star VIP 1 year price';
+$lang['vset9'] = 'Star VIP lifetime price';
+$lang['vip_order'] = 'VIP Order';
+$lang['vip_add'] = 'Add VIP';
+$lang['vip_cancel'] = 'Cancel VIP';
+$lang['vip_manage'] = 'Manage VIP';
+$lang['vip_tier_gold'] = 'Gold VIP';
+$lang['vip_tier_star'] = 'Star VIP';
+$lang['vip_life'] = 'Lifetime';
+$lang['end_date'] = 'End date';
+$lang['vip_confirm'] = 'Do you really want to cancel  VIP plan of this user. This action cannot be undone.';
+$lang['vip_back'] = 'Back';
+$lang['vip_myself'] = 'Myself';
+$lang['vip_other'] = 'Someone else';
+$lang['vip_who'] = 'Member username';
+$lang['vip_forwho'] = 'Who is this VIP membership for ?';
+$lang['vip_feature_title'] = 'Gold VIP features';
+$lang['vip_feature_text'] = 'Gold VIP gives the standard Cody Chat premium experience with voice tools, call access, and profile upgrades.';
+$lang['vip_gold_feature_text'] = 'Gold VIP includes the classic premium features already available on Cody Chat.';
+$lang['vip_star_feature_text'] = 'Star VIP includes everything in Gold VIP plus paid access to all premium custom features and upcoming releases.';
+$lang['vip_guest'] = 'Sorry only registered members can subscribe to VIP membership please register an account in order to purchase VIP membership and access some great extra features.';
+$lang['vip_plan_title'] = 'Choose your VIP plan';
+$lang['vip_plan_text'] = 'Select a Gold VIP or Star VIP plan to activate membership immediately.';
+$lang['vplan1'] = '7 Days Gold VIP Membership';
+$lang['vplan2'] = '1 Month Gold VIP Membership';
+$lang['vplan3'] = '3 Months Gold VIP Membership';
+$lang['vplan4'] = '1 Year Gold VIP Membership';
+$lang['vplan5'] = 'Lifetime Gold VIP Membership';
+$lang['vplan6'] = '1 Month Star VIP Membership';
+$lang['vplan7'] = '3 Months Star VIP Membership';
+$lang['vplan8'] = '1 Year Star VIP Membership';
+$lang['vplan9'] = 'Lifetime Star VIP Membership';
+
+// list of feature
+
+$feature[1] = 'Animated profile banner';
+$feature[2] = 'Voice and call features';
+$feature[3] = 'Profile music and animated profile effects';
+$feature[4] = 'Core premium add-on access';
+$feature[5] = 'Premium profile styling tools';
+$feature[6] = '';
+$feature[7] = '';
+$feature[8] = '';
+$feature[9] = '';
+$feature[10] = '';
+
+$star_feature[1] = 'Everything included in Gold VIP';
+$star_feature[2] = 'Full access to Star-only premium add-ons';
+$star_feature[3] = 'Early access to new custom features';
+$star_feature[4] = 'Priority support and fast-track requests';
+$star_feature[5] = 'Highest level account perks';
+$star_feature[6] = '';
+$star_feature[7] = '';
+$star_feature[8] = '';
+$star_feature[9] = '';
+$star_feature[10] = '';
+?>
