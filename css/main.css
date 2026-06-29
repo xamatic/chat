@@ -1853,7 +1853,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 /* room option css */
 .room_options { width:100%; padding:0 5px 15px 5px; }
 .room_elem { display:table; padding:10px; cursor:pointer;  overflow:hidden; position:relative; }
-.room_celem { display:table; padding:8px; cursor:pointer;  overflow:hidden; position:relative; }
+.room_celem { display:table !important; padding:8px; cursor:pointer;  overflow:hidden; position:relative; }
 .room_content { padding:0 0 0 10px; }
 .room_name { font-size:16px; font-weight:bold; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
 .room_cname { font-size:14px; font-weight:bold; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
