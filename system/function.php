@@ -2792,7 +2792,8 @@ function publicThemeBuildCss($config, $background = '', $custom_css = ''){
 	$sheet .= ".bshadow, .page_element, .float_menu, .btnshadow, .pboxed, .tab_menu { box-shadow: 0 8px 24px rgba(0,0,0,0.35); }\n";
 	$sheet .= ".modal_back { background-color: rgba(0,0,0,0.55); }\n";
 	if($panel_blur > 0){
-		$sheet .= ".back_chat, .back_priv, .back_panel, .back_menu, .back_box, .back_input, .back_modal, .page_element, .back_quote { backdrop-filter: blur({$panel_blur}px); -webkit-backdrop-filter: blur({$panel_blur}px); }\n";
+		$sheet .= "body:not(#chat_right):not(#chat_left) { backdrop-filter: blur({$panel_blur}px); -webkit-backdrop-filter: blur({$panel_blur}px); }\n";
+		$sheet .= "#chat_right, #chat_left { backdrop-filter: blur({$panel_blur}px) brightness(0.5); -webkit-backdrop-filter: blur({$panel_blur}px) brightness(0.5); }\n";
 	}
 	if($custom_css !== ''){
 		$sheet .= "\n/* custom css */\n" . $custom_css . "\n";
