@@ -942,6 +942,7 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 	width:240px;
 	padding:10px 12px;
 	border-radius:8px;
+	z-index: 500;
 	background:rgba(0,0,0,0.88);
 	color:#fff;
 	text-align:left;
