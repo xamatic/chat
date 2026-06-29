@@ -251,10 +251,25 @@ syncLargeModalFxClasses = function(){
 }
 var desktopPopoutZ = 420;
 var desktopModalZ = 1000;
+var legacyMenuRequest = 0;
 
 desktopPopoutMode = function(){
 	var limit = (typeof menuHide !== 'undefined') ? menuHide : 767;
 	return $(window).width() > limit;
+}
+legacyMenuTrigger = function(item){
+	return $(item).closest('#chat_head, #left_menu').length > 0;
+}
+requestLegacyMenu = function(){
+	legacyMenuRequest = 1;
+	setTimeout(function(){
+		legacyMenuRequest = 0;
+	}, 350);
+}
+consumeLegacyMenuRequest = function(){
+	var legacy = (legacyMenuRequest == 1);
+	legacyMenuRequest = 0;
+	return legacy;
 }
 popoutBounds = function(){
 	if($('#global_chat').length){
@@ -278,9 +293,16 @@ popoutBounds = function(){
 		height: $(window).height()
 	};
 }
-popoutContainment = function(){
+popoutChromeHeight = function(item){
+	var target = $(item);
+	if(target.hasClass('desktop_popout_window') || target.hasClass('desktop_modal_window') || target.children('.popout_window_controls').length){
+		return 28;
+	}
+	return 0;
+}
+popoutContainment = function(item){
 	var bounds = popoutBounds();
-	return [bounds.left, bounds.top, bounds.right, bounds.bottom];
+	return [bounds.left, bounds.top + popoutChromeHeight(item), bounds.right, bounds.bottom];
 }
 bringPopoutFront = function(item){
 	var layer = $(item).hasClass('modal_in') ? ++desktopModalZ : ++desktopPopoutZ;
@@ -288,10 +310,11 @@ bringPopoutFront = function(item){
 }
 addPopoutBar = function(item){
 	var target = $(item);
-	if(target.children('.popout_window_bar').length){
+	target.children('.popout_window_bar').remove();
+	if(target.children('.popout_window_controls').length){
 		return;
 	}
-	target.prepend('<div class="popout_window_bar"><div class="popout_window_grip"><i class="fa fa-grip-lines"></i></div><button type="button" class="popout_window_close" aria-label="Close"><i class="fa fa-times"></i></button></div>');
+	target.append('<div class="popout_window_controls"><div class="popout_window_grip" title="Move window"><i class="fa fa-grip-lines"></i></div><button type="button" class="popout_window_close" aria-label="Close"><i class="fa fa-times"></i></button></div>');
 }
 clampPopoutPosition = function(item){
 	var target = $(item);
@@ -299,18 +322,20 @@ clampPopoutPosition = function(item){
 		return;
 	}
 	var bounds = popoutBounds();
+	var chromeHeight = popoutChromeHeight(target);
 	var width = target.outerWidth();
 	var height = target.outerHeight();
 	var offset = target.offset() || { left: bounds.left, top: bounds.top };
 	var left = offset.left;
 	var top = offset.top;
+	var minTop = bounds.top + chromeHeight;
 	var maxLeft = Math.max(bounds.left, bounds.right - width);
-	var maxTop = Math.max(bounds.top, bounds.bottom - height);
+	var maxTop = Math.max(minTop, bounds.bottom - height);
 	if(left < bounds.left){
 		left = bounds.left;
 	}
-	if(top < bounds.top){
-		top = bounds.top;
+	if(top < minTop){
+		top = minTop;
 	}
 	if(left > maxLeft){
 		left = maxLeft;
@@ -348,26 +373,30 @@ activateDesktopPopout = function(item){
 	}
 	addPopoutBar(target);
 	target.addClass('desktop_popout_window');
+	if(target.hasClass('float_menu')){
+		target.css('display', 'flex');
+	}
 	if(!target.data('desktop-popout-sized')){
 		target.css('height', 'auto');
 	}
 	placePopoutForDesktop(target);
 	bringPopoutFront(target);
 	var bounds = popoutBounds();
+	var chromeHeight = popoutChromeHeight(target);
 	var maxWidth = Math.max(220, bounds.width);
-	var maxHeight = Math.max(120, bounds.height);
+	var maxHeight = Math.max(120, bounds.height - chromeHeight);
 	target.css({
 		'max-width': maxWidth,
 		'max-height': maxHeight
 	});
 	if($.fn.draggable){
 		if(target.data('ui-draggable')){
-			target.draggable('option', 'containment', popoutContainment());
+			target.draggable('option', 'containment', popoutContainment(target));
 		}
 		else {
 			target.draggable({
 				handle: '.popout_window_grip',
-				containment: popoutContainment(),
+				containment: popoutContainment(target),
 				cancel: 'input, textarea, select, button, a, .ui-resizable-handle',
 				start: function(){
 					bringPopoutFront(this);
@@ -442,18 +471,20 @@ activateDesktopModal = function(item){
 	centerDesktopModal(target);
 	bringPopoutFront(target);
 	var bounds = popoutBounds();
+	var chromeHeight = popoutChromeHeight(target);
+	var maxHeight = Math.max(160, bounds.height - chromeHeight);
 	target.css({
 		'max-width': bounds.width,
-		'max-height': bounds.height
+		'max-height': maxHeight
 	});
 	if($.fn.draggable){
 		if(target.data('ui-draggable')){
-			target.draggable('option', 'containment', popoutContainment());
+			target.draggable('option', 'containment', popoutContainment(target));
 		}
 		else {
 			target.draggable({
 				handle: '.popout_window_grip',
-				containment: popoutContainment(),
+				containment: popoutContainment(target),
 				cancel: 'input, textarea, select, button, a, .ui-resizable-handle',
 				start: function(){
 					bringPopoutFront(this);
@@ -468,7 +499,7 @@ activateDesktopModal = function(item){
 		if(target.data('ui-resizable')){
 			target.resizable('option', {
 				maxWidth: bounds.width,
-				maxHeight: bounds.height
+				maxHeight: maxHeight
 			});
 		}
 		else {
@@ -477,7 +508,7 @@ activateDesktopModal = function(item){
 				minWidth: 260,
 				minHeight: 160,
 				maxWidth: bounds.width,
-				maxHeight: bounds.height,
+				maxHeight: maxHeight,
 				start: function(){
 					target.data('desktop-popout-sized', 1);
 					bringPopoutFront(this);
@@ -491,6 +522,7 @@ activateDesktopModal = function(item){
 }
 resetDesktopPopout = function(item){
 	var target = $(item);
+	var wasFloatPopout = target.hasClass('desktop_popout_window') && target.hasClass('float_menu');
 	if(target.data('ui-draggable')){
 		target.draggable('destroy');
 	}
@@ -499,7 +531,7 @@ resetDesktopPopout = function(item){
 	}
 	target.removeClass('desktop_popout_window desktop_modal_window');
 	target.removeData('desktop-popout-placed desktop-popout-sized');
-	target.children('.popout_window_bar').remove();
+	target.children('.popout_window_bar, .popout_window_controls').remove();
 	target.css({
 		left: '',
 		top: '',
@@ -513,11 +545,30 @@ resetDesktopPopout = function(item){
 		'max-height': '',
 		'z-index': ''
 	});
+	if(wasFloatPopout){
+		target.css('display', target.is(':visible') ? 'block' : '');
+	}
 }
 resetDesktopPopouts = function(){
 	$('.desktop_popout_window, .desktop_modal_window').each(function(){
 		resetDesktopPopout(this);
 	});
+}
+showLegacyMenu = function(id){
+	vidaudOff();
+	var target = $('#'+id);
+	if(target.is(':visible')){
+		target.removeClass('legacy_menu_open').hide();
+		return;
+	}
+	resetDesktopPopout(target);
+	$('.sysmenu').each(function(){
+		if($(this).attr('id') != id){
+			$(this).removeClass('legacy_menu_open').hide();
+		}
+	});
+	target.addClass('legacy_menu_open').show().scrollTop(0);
+	selectIt();
 }
 showModal = function(r,s){
 	hideAll();
@@ -982,11 +1033,15 @@ loadLanguage = function(lang){
 			location.reload();
 	});
 }
-showMenu = function(id){
+showMenu = function(id, forceLegacy){
+	if(forceLegacy){
+		showLegacyMenu(id);
+		return;
+	}
 	vidaudOff();
 	var target = $('#'+id);
 	if(target.is(':visible')){
-		target.hide();
+		target.removeClass('legacy_menu_open').hide();
 		if(!desktopPopoutMode()){
 			$('.sysmenu').each(function(){
 				if($(this).attr('id') != id){
@@ -996,6 +1051,7 @@ showMenu = function(id){
 		}
 	}
 	else {
+		target.removeClass('legacy_menu_open');
 		target.show().scrollTop(0);
 		selectIt();
 		if(desktopPopoutMode()){
@@ -1012,29 +1068,33 @@ showMenu = function(id){
 }
 prepareMenu = function(id){
 	if($('#'+id).is(':visible')){
+		consumeLegacyMenuRequest();
 		return false;
 	}
 	else {
 		var container = $('#'+id).attr('data');
 		$('#'+container).html(menuSpinner);
-		showMenu(id);
+		showMenu(id, consumeLegacyMenuRequest());
 		return true;
 	}
 }
 appendMenu = function(id, data){
 	var container = $('#'+id).attr('data');
 	$('#'+container).html(data);
-	if($('#'+id).is(':visible')){
+	if($('#'+id).is(':visible') && !$('#'+id).hasClass('legacy_menu_open')){
 		activateDesktopPopout('#'+id);
 	}
 }
 hideAllMenu = function(){
 	if(!desktopPopoutMode()){
-		$('.sysmenu').hide();
+		$('.sysmenu').removeClass('legacy_menu_open').hide();
+	}
+	else {
+		$('.legacy_menu_open').removeClass('legacy_menu_open').hide();
 	}
 }
 hideMenu = function(id){
-	$('#'+id).hide();
+	$('#'+id).removeClass('legacy_menu_open').hide();
 }
 boomSound = function(snd){
 	if(uSound.match(snd)){
@@ -1182,9 +1242,13 @@ $(document).ready(function(){
 		}
 	});
 	
+	$(document).on('mousedown touchstart', '#chat_head .menutrig, #left_menu .menutrig', function(){
+		requestLegacyMenu();
+	});
+
 	$(document).click(function(e){
 		var target = $(e.target);
-		if(!desktopPopoutMode() && !target.parents('.sysmenu').length && !target.parents('.menutrig').length){
+		if((!desktopPopoutMode() || $('.legacy_menu_open:visible').length) && !target.parents('.sysmenu').length && !target.parents('.menutrig').length){
 			hideAllMenu();
 		}
 	});
@@ -1261,7 +1325,21 @@ $(document).ready(function(){
 	
 	$(document).on('click', '.show_menu', function(){
 		var id = $(this).attr('data-menu');
-		showMenu(id);
+		var legacy = legacyMenuTrigger(this) || $(this).closest('.legacy_menu_open').length > 0 || consumeLegacyMenuRequest();
+		if(legacy){
+			legacyMenuRequest = 0;
+		}
+		showMenu(id, legacy);
+	});
+
+	$(document).on('click', '.legacy_menu_open .fmenu_item, .legacy_menu_open .submenu_item, .legacy_menu_open .bmenu, .legacy_menu_open .bpmenu, .legacy_menu_open .page_drop_item, .legacy_menu_open .page_menu_item', function(e){
+		if($(this).hasClass('show_menu') || $(e.target).closest('.show_menu').length){
+			return;
+		}
+		var id = $(this).closest('.legacy_menu_open').attr('id');
+		setTimeout(function(){
+			hideMenu(id);
+		}, 0);
 	});
 	
 	$(document).on('click', '.hide_menu', function(){
