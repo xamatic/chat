@@ -25,10 +25,9 @@ ensureGoofyDirectory();
 
 // Helper: process targets
 $target_mode = isset($_POST['target_mode']) ? escape($_POST['target_mode']) : 'all';
-$target_mode = ($target_mode === 'some') ? 'some' : 'all';
+$target_mode = in_array($target_mode, ['all', 'room', 'some'], true) ? $target_mode : 'all';
 $raw_targets = isset($_POST['targets']) ? $_POST['targets'] : '';
-// Events from this panel are always global so every connected chat user can receive them.
-$room = 0;
+$room = ($target_mode === 'room' && isset($data['user_roomid'])) ? (int) $data['user_roomid'] : 0;
 
 function goofyTargetModeTargets($mode, $raw, $room){
     if($mode !== 'some'){
@@ -46,6 +45,10 @@ if(isset($_POST['send_announce'])){
     $text = trim((string) $_POST['announce_text']);
     $dur = (int) $_POST['announce_duration'];
     $drag = (isset($_POST['announce_drag']) && (int) $_POST['announce_drag'] > 0) ? 1 : 0;
+    $style = isset($_POST['announce_style']) ? escape($_POST['announce_style']) : 'cosmic';
+    $position = isset($_POST['announce_position']) ? escape($_POST['announce_position']) : 'top';
+    $style = in_array($style, ['cosmic', 'alert', 'soft'], true) ? $style : 'cosmic';
+    $position = in_array($position, ['top', 'center', 'bottom'], true) ? $position : 'top';
     if($text === ''){
         echo boomCode(0);
         die();
@@ -55,7 +58,7 @@ if(isset($_POST['send_announce'])){
         echo boomCode(3);
         die();
     }
-    createGoofyEvent('announce', ['text' => $text], $room, $targets, $drag, $dur);
+    createGoofyEvent('announce', ['text' => $text, 'style' => $style, 'position' => $position], $room, $targets, $drag, $dur);
     echo boomCode(1);
     die();
 }
@@ -65,6 +68,8 @@ if(isset($_POST['send_jump'])){
     $dur = (int) $_POST['jump_duration'];
     $drag = (isset($_POST['jump_drag']) && (int) $_POST['jump_drag'] > 0) ? 1 : 0;
     $text = isset($_POST['jump_text']) ? trim((string) $_POST['jump_text']) : '';
+    $display = isset($_POST['jump_display']) ? escape($_POST['jump_display']) : 'full';
+    $display = in_array($display, ['full', 'card'], true) ? $display : 'full';
     $targets = goofyTargetModeTargets($target_mode, $raw_targets, $room);
     if($targets === false){
         echo boomCode(3);
@@ -103,7 +108,7 @@ if(isset($_POST['send_jump'])){
         die();
     }
 
-    $payload = ['image' => $img_path, 'audio' => $audio_path, 'text' => $text];
+    $payload = ['image' => $img_path, 'audio' => $audio_path, 'text' => $text, 'display' => $display];
     createGoofyEvent('jumpscare', $payload, $room, $targets, $drag, $dur);
     echo boomCode(1);
     die();
@@ -144,8 +149,12 @@ if(isset($_POST['send_random'])){
     $drag = (isset($_POST['random_drag']) && (int) $_POST['random_drag'] > 0) ? 1 : 0;
     $flags = [
         'effects' => (isset($_POST['random_effect']) && (int) $_POST['random_effect'] > 0) ? 1 : 0,
+        'confetti' => (isset($_POST['random_confetti']) && (int) $_POST['random_confetti'] > 0) ? 1 : 0,
         'shake' => (isset($_POST['random_shake']) && (int) $_POST['random_shake'] > 0) ? 1 : 0,
         'spin' => (isset($_POST['random_spin']) && (int) $_POST['random_spin'] > 0) ? 1 : 0,
+        'pulse' => (isset($_POST['random_pulse']) && (int) $_POST['random_pulse'] > 0) ? 1 : 0,
+        'invert' => (isset($_POST['random_invert']) && (int) $_POST['random_invert'] > 0) ? 1 : 0,
+        'blur' => (isset($_POST['random_blur']) && (int) $_POST['random_blur'] > 0) ? 1 : 0,
     ];
     $targets = goofyTargetModeTargets($target_mode, $raw_targets, $room);
     if($targets === false){

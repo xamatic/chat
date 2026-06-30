@@ -1561,7 +1561,7 @@ getGoofyAdminPanel = function(){
 				callError(system.error);
 				return;
 			}
-			overModal(response, 560);
+			overModal(response, 760);
 	});
 }
 
@@ -1600,6 +1600,8 @@ sendGoofyAnnouncement = function(){
 	var text = $('#goofy_announce_text').val();
 	var dur = $('#goofy_announce_duration').val();
 	var drag = $('#goofy_announce_drag').val();
+	var style = $('#goofy_announce_style').val();
+	var position = $('#goofy_announce_position').val();
 	var mode = $('#goofy_announce_target_mode').val();
 	var targets = $('#goofy_announce_targets').val();
 	$.ajax({
@@ -1613,6 +1615,8 @@ sendGoofyAnnouncement = function(){
 			announce_text: text,
 			announce_duration: dur,
 			announce_drag: (drag==1?1:0),
+			announce_style: style,
+			announce_position: position,
 			target_mode: mode,
 			targets: targets,
 			room: user_room,
@@ -1644,6 +1648,7 @@ sendGoofyJump = function(){
 	var mode = $('#goofy_jump_target_mode').val();
 	var targets = $('#goofy_jump_targets').val();
 	var text = $('#goofy_jump_text').val();
+	var display = $('#goofy_jump_display').val();
 	var fd = new FormData();
 	fd.append('send_jump', 1);
 	fd.append('token', utk);
@@ -1653,6 +1658,7 @@ sendGoofyJump = function(){
 	fd.append('target_mode', mode);
 	fd.append('targets', targets);
 	fd.append('jump_text', text);
+	fd.append('jump_display', display);
 	var img = $('#goofy_jump_image')[0];
 	if(img && img.files && img.files.length){ fd.append('jump_image', img.files[0]); }
 	var aud = $('#goofy_jump_audio')[0];
@@ -1713,8 +1719,12 @@ sendGoofyRandom = function(){
 	var mode = $('#goofy_random_target_mode').val();
 	var targets = $('#goofy_random_targets').val();
 	var eff = $('#goofy_random_effect').is(':checked') ? 1 : 0;
+	var confetti = $('#goofy_random_confetti').is(':checked') ? 1 : 0;
 	var shake = $('#goofy_random_shake').is(':checked') ? 1 : 0;
 	var spin = $('#goofy_random_spin').is(':checked') ? 1 : 0;
+	var pulse = $('#goofy_random_pulse').is(':checked') ? 1 : 0;
+	var invert = $('#goofy_random_invert').is(':checked') ? 1 : 0;
+	var blur = $('#goofy_random_blur').is(':checked') ? 1 : 0;
 	$.ajax({
 		url: 'system/action/action_goofy.php',
 		type: 'POST',
@@ -1725,8 +1735,12 @@ sendGoofyRandom = function(){
 			send_random: 1,
 			random_duration: dur,
 			random_effect: eff,
+			random_confetti: confetti,
 			random_shake: shake,
 			random_spin: spin,
+			random_pulse: pulse,
+			random_invert: invert,
+			random_blur: blur,
 			target_mode: mode,
 			targets: targets,
 			room: user_room,

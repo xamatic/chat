@@ -2272,6 +2272,24 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 .avatar_control { position:absolute; display:table; table-layout:fixed; width:100%; z-index:40; width:60px; left:20px; border-radius:50px; bottom:10px; }
 .avatar_spin { border-radius:50%; overflow:hidden; position:relative; z-index:30; }
 
+/* goofy event panel */
+.goofy_admin_title { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; }
+.goofy_admin_kicker { font-size:11px; font-weight:bold; text-transform:uppercase; opacity:.65; margin-bottom:3px; }
+.goofy_admin_panel { padding-top:4px; }
+.goofy_admin_grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+.goofy_admin_card { border:1px solid rgba(150,150,150,0.18); border-radius:8px; padding:12px; background:rgba(120,120,120,0.06); display:flex; flex-direction:column; gap:10px; }
+.goofy_admin_head { display:flex; align-items:center; gap:10px; min-height:38px; }
+.goofy_admin_head i { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(150,150,150,0.14); font-size:15px; }
+.goofy_admin_name { font-size:15px; font-weight:bold; line-height:1.2em; }
+.goofy_admin_hint { font-size:12px; opacity:.7; line-height:1.25em; }
+.goofy_admin_fields { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+.goofy_admin_fields select, .goofy_admin_card select { width:100%; height:36px; }
+.goofy_admin_card input[type="file"] { width:100%; max-width:100%; font-size:12px; }
+.goofy_file_row { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+.goofy_option_grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; font-size:13px; }
+.goofy_option_grid label { display:flex; align-items:center; gap:7px; min-height:26px; }
+.goofy_admin_card .reg_button { width:100%; margin-top:auto; }
+
 /* goofy event visuals */
 .goofy_event_box {
 	position:fixed;
@@ -2287,6 +2305,12 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 	background:rgba(11,16,24,0.96);
 	color:#fff;
 }
+.goofy_event_cosmic { background:linear-gradient(135deg, rgba(18,24,39,0.98), rgba(49,43,95,0.96)); border:1px solid rgba(120,170,255,0.22); }
+.goofy_event_alert { background:linear-gradient(135deg, rgba(91,22,22,0.98), rgba(173,54,28,0.96)); border:1px solid rgba(255,198,120,0.28); }
+.goofy_event_soft { background:rgba(246,247,250,0.96); color:#18202c; border:1px solid rgba(40,50,70,0.15); }
+.goofy_event_top { left:50%; top:90px; bottom:auto; transform:translateX(-50%); }
+.goofy_event_center { left:50%; top:50%; bottom:auto; transform:translate(-50%, -50%); }
+.goofy_event_bottom { left:50%; top:auto; bottom:86px; transform:translateX(-50%); }
 .goofy_event_handle {
 	padding:8px 12px;
 	font-size:11px;
@@ -2304,7 +2328,6 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 }
 .goofy_jumpscare {
 	position:fixed;
-	inset:0;
 	z-index:99999;
 	background:rgba(0,0,0,0.82);
 	display:flex;
@@ -2314,6 +2337,20 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 	gap:14px;
 	text-align:center;
 	padding:20px;
+}
+.goofy_jumpscare_full { inset:0; }
+.goofy_jumpscare_card {
+	left:50%;
+	top:50%;
+	right:auto;
+	bottom:auto;
+	width:min(92vw, 640px);
+	min-height:260px;
+	border-radius:14px;
+	transform:translate(-50%, -50%);
+	box-shadow:0 28px 70px rgba(0,0,0,0.55);
+	background:rgba(5,7,12,0.92);
+	cursor:move;
 }
 .goofy_jumpscare img {
 	max-width:min(86vw, 560px);
@@ -2331,8 +2368,13 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 	word-break:break-word;
 }
 .goofy_fx_demo { pointer-events: none; display:block; border-radius:8px; padding:8px; text-align:center; color:#111; font-weight:bold; }
+.goofy_confetti_piece { position:fixed; top:-18px; z-index:99999; width:9px; height:15px; border-radius:3px; pointer-events:none; animation:goofy_confetti 2.4s ease-in forwards; }
 .goofy_shake { animation: goofy_shake 0.6s cubic-bezier(.36,.07,.19,.97) 3 both; }
 .goofy_spin { animation: goofy_spin 1.2s linear infinite; }
+.goofy_pulse { animation: goofy_pulse 0.7s ease-in-out infinite alternate; }
+.goofy_invert { filter:invert(1) hue-rotate(160deg); }
+.goofy_blur { filter:blur(1.5px); }
+.goofy_invert.goofy_blur { filter:invert(1) hue-rotate(160deg) blur(1.5px); }
 @keyframes goofy_shake {
 	0% { transform: translate3d(0,0,0); }
 	25% { transform: translate3d(-6px,0,0) rotate(-1deg); }
@@ -2343,6 +2385,19 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 @keyframes goofy_spin {
 	from { transform: rotate(0deg); }
 	to { transform: rotate(360deg); }
+}
+@keyframes goofy_pulse {
+	from { transform:scale(1); filter:brightness(1); }
+	to { transform:scale(1.12); filter:brightness(1.35); }
+}
+@keyframes goofy_confetti {
+	0% { opacity:0; transform:translateY(0) rotate(0deg); }
+	12% { opacity:1; }
+	100% { opacity:0; transform:translateY(110vh) rotate(720deg); }
+}
+@media screen and (max-width: 720px){
+	.goofy_admin_grid, .goofy_admin_fields, .goofy_file_row, .goofy_option_grid { grid-template-columns:1fr; }
+	.goofy_event_box { min-width:220px; max-width:calc(100vw - 20px); }
 }
 
 /* avatar uploader */

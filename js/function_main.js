@@ -4457,7 +4457,7 @@ handleGoofyEvents = function(events){
 
 var goofyAnnouncementTimer = 0;
 var goofyJumpTimer = 0;
-var goofyBurstTimers = { effects: 0, shake: 0, shakeStop: 0, spin: 0 };
+var goofyBurstTimers = { effects: 0, confetti: 0, shake: 0, shakeStop: 0, spin: 0, pulse: 0, filter: 0 };
 
 goofyClampDuration = function(value, fallback){
 	var v = parseInt(value, 10);
@@ -4478,6 +4478,10 @@ clearGoofyBurstTimers = function(){
 		clearInterval(goofyBurstTimers.effects);
 		goofyBurstTimers.effects = 0;
 	}
+	if(goofyBurstTimers.confetti){
+		clearInterval(goofyBurstTimers.confetti);
+		goofyBurstTimers.confetti = 0;
+	}
 	if(goofyBurstTimers.shake){
 		clearInterval(goofyBurstTimers.shake);
 		goofyBurstTimers.shake = 0;
@@ -4490,21 +4494,76 @@ clearGoofyBurstTimers = function(){
 		clearTimeout(goofyBurstTimers.spin);
 		goofyBurstTimers.spin = 0;
 	}
-	$('body').removeClass('goofy_shake');
-	$('.glob_av, .avatar, .avatar_preview, .glob_av_big').removeClass('goofy_spin');
+	if(goofyBurstTimers.pulse){
+		clearTimeout(goofyBurstTimers.pulse);
+		goofyBurstTimers.pulse = 0;
+	}
+	if(goofyBurstTimers.filter){
+		clearTimeout(goofyBurstTimers.filter);
+		goofyBurstTimers.filter = 0;
+	}
+	$('body').removeClass('goofy_shake goofy_invert goofy_blur');
+	$('.glob_av, .avatar, .avatar_preview, .glob_av_big').removeClass('goofy_spin goofy_pulse');
+	$('.goofy_confetti_piece').remove();
+}
+
+goofyResetDraggable = function(item){
+	var target = $(item);
+	if(target.data('ui-draggable')){
+		target.draggable('destroy');
+	}
+}
+
+goofyMakeDraggable = function(item, handle){
+	var target = $(item);
+	if(!$.fn.draggable || !target.length){
+		return;
+	}
+	goofyResetDraggable(target);
+	var offset = target.offset() || { left: 20, top: 20 };
+	target.css({
+		position: 'fixed',
+		left: offset.left - $(window).scrollLeft(),
+		top: offset.top - $(window).scrollTop(),
+		right: 'auto',
+		bottom: 'auto',
+		transform: 'none',
+		cursor: handle ? '' : 'move'
+	});
+	target.draggable({
+		handle: handle || false,
+		containment: 'document',
+		cancel: 'button, input, textarea, select, a',
+		start: function(){
+			$(this).css('z-index', 100000);
+		}
+	});
 }
 
 showGoofyAnnouncement = function(data, drag){
 	var text = data.text || '';
 	var duration = goofyClampDuration(data.duration, 10);
+	var style = data.style || 'cosmic';
+	var position = data.position || 'top';
+	var styles = ['cosmic', 'alert', 'soft'];
+	var positions = ['top', 'center', 'bottom'];
+	if(styles.indexOf(style) === -1){
+		style = 'cosmic';
+	}
+	if(positions.indexOf(position) === -1){
+		position = 'top';
+	}
 	var $box = $('#goofy_event_box');
 	$('#goofy_event_text').text(text);
-	$box.removeClass('fhide').stop(true, true).fadeIn(120);
-	if(drag && $("#goofy_event_box").draggable){
-		$("#goofy_event_box").draggable({ handle: '#goofy_event_handle', containment: 'document' });
-	}
-	else if($box.data('ui-draggable')){
-		$box.draggable('destroy');
+	goofyResetDraggable($box);
+	$box
+		.removeClass('fhide goofy_event_cosmic goofy_event_alert goofy_event_soft goofy_event_top goofy_event_center goofy_event_bottom')
+		.addClass('goofy_event_' + style + ' goofy_event_' + position)
+		.css({ left: '', top: '', right: '', bottom: '', transform: '', cursor: '' })
+		.stop(true, true)
+		.fadeIn(120);
+	if(drag){
+		goofyMakeDraggable($box, '#goofy_event_handle');
 	}
 	if(goofyAnnouncementTimer){
 		clearTimeout(goofyAnnouncementTimer);
@@ -4520,17 +4579,24 @@ showGoofyJumpscare = function(data, drag){
 	var img = data.image || '';
 	var text = data.text || '';
 	var audio = data.audio || '';
+	var display = data.display || 'full';
+	if(['full', 'card'].indexOf(display) === -1){
+		display = 'full';
+	}
 	var duration = goofyClampDuration(data.duration, 8);
 	var $jump = $('#goofy_jumpscare');
 	if(img !== ''){
 		$('#goofy_jumpscare_img').attr('src', img);
 		$('#goofy_jumpscare_text').text(text);
-		$jump.removeClass('fhide').stop(true, true).css('display', 'flex');
-		if(drag && $("#goofy_jumpscare").draggable){
-			$("#goofy_jumpscare").draggable({ containment: 'document' });
-		}
-		else if($jump.data('ui-draggable')){
-			$jump.draggable('destroy');
+		goofyResetDraggable($jump);
+		$jump
+			.removeClass('fhide goofy_jumpscare_full goofy_jumpscare_card')
+			.addClass((display == 'card' || drag) ? 'goofy_jumpscare_card' : 'goofy_jumpscare_full')
+			.css({ left: '', top: '', right: '', bottom: '', transform: '', cursor: '' })
+			.stop(true, true)
+			.css('display', 'flex');
+		if(drag){
+			goofyMakeDraggable($jump, false);
 		}
 		if(audio !== ''){
 			$('#goofy_audio_player').attr('src', audio);
@@ -4582,6 +4648,33 @@ triggerGoofyBurst = function(data){
 			spawnFx();
 		}, 900);
 	}
+	if(flags.confetti){
+		var spawnConfetti = function(){
+			var colors = ['#ff5f7e', '#ffd166', '#61e294', '#4cc9f0', '#b388ff'];
+			for(var c=0;c<18;c++){
+				var color = colors[Math.floor(Math.random() * colors.length)];
+				var left = Math.floor(Math.random() * 100);
+				var delay = Math.random() * 0.4;
+				var $piece = $('<span class="goofy_confetti_piece"></span>');
+				$piece.css({
+					left: left + 'vw',
+					background: color,
+					animationDelay: delay + 's'
+				});
+				$('body').append($piece);
+				(function(el){ setTimeout(function(){ $(el).remove(); }, 2600); })($piece);
+			}
+		};
+		spawnConfetti();
+		goofyBurstTimers.confetti = setInterval(function(){
+			if(Date.now() >= endAt){
+				clearInterval(goofyBurstTimers.confetti);
+				goofyBurstTimers.confetti = 0;
+				return;
+			}
+			spawnConfetti();
+		}, 1100);
+	}
 	if(flags.shake){
 		var shakeOnce = function(){
 			$('body').removeClass('goofy_shake');
@@ -4610,6 +4703,22 @@ triggerGoofyBurst = function(data){
 	if(flags.spin){
 		$('.glob_av, .avatar, .avatar_preview, .glob_av_big').addClass('goofy_spin');
 		goofyBurstTimers.spin = setTimeout(function(){ $('.glob_av, .avatar, .avatar_preview, .glob_av_big').removeClass('goofy_spin'); }, duration * 1000);
+	}
+	if(flags.pulse){
+		$('.glob_av, .avatar, .avatar_preview, .glob_av_big').addClass('goofy_pulse');
+		goofyBurstTimers.pulse = setTimeout(function(){ $('.glob_av, .avatar, .avatar_preview, .glob_av_big').removeClass('goofy_pulse'); }, duration * 1000);
+	}
+	if(flags.invert || flags.blur){
+		if(flags.invert){
+			$('body').addClass('goofy_invert');
+		}
+		if(flags.blur){
+			$('body').addClass('goofy_blur');
+		}
+		goofyBurstTimers.filter = setTimeout(function(){
+			$('body').removeClass('goofy_invert goofy_blur');
+			goofyBurstTimers.filter = 0;
+		}, duration * 1000);
 	}
 }
 	
