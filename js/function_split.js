@@ -268,9 +268,6 @@ desktopPopoutAllowed = function(item){
 	}
 	return true;
 }
-desktopResizeAllowed = function(item){
-	return $(item).hasClass('desktop_resizable_window');
-}
 legacyMenuTrigger = function(item){
 	return $(item).closest('#chat_head, #left_menu').length > 0;
 }
@@ -415,37 +412,8 @@ activateDesktopPopout = function(item){
 			target.draggable({
 				handle: '.popout_window_grip',
 				containment: popoutContainment(target),
-				cancel: 'input, textarea, select, button, a, .ui-resizable-handle',
+				cancel: 'input, textarea, select, button, a',
 				start: function(){
-					bringPopoutFront(this);
-				},
-				stop: function(){
-					clampPopoutPosition(this);
-				}
-			});
-		}
-	}
-	if($.fn.resizable){
-		if(!desktopResizeAllowed(target)){
-			if(target.data('ui-resizable')){
-				target.resizable('destroy');
-			}
-		}
-		else if(target.data('ui-resizable')){
-			target.resizable('option', {
-				maxWidth: maxWidth,
-				maxHeight: maxHeight
-			});
-		}
-		else {
-			target.resizable({
-				handles: 'n,e,s,w,se,sw,ne,nw',
-				minWidth: 200,
-				minHeight: 90,
-				maxWidth: maxWidth,
-				maxHeight: maxHeight,
-				start: function(){
-					target.data('desktop-popout-sized', 1);
 					bringPopoutFront(this);
 				},
 				stop: function(){
@@ -508,37 +476,8 @@ activateDesktopModal = function(item){
 			target.draggable({
 				handle: '.popout_window_grip',
 				containment: popoutContainment(target),
-				cancel: 'input, textarea, select, button, a, .ui-resizable-handle',
+				cancel: 'input, textarea, select, button, a',
 				start: function(){
-					bringPopoutFront(this);
-				},
-				stop: function(){
-					clampPopoutPosition(this);
-				}
-			});
-		}
-	}
-	if($.fn.resizable){
-		if(!desktopResizeAllowed(target)){
-			if(target.data('ui-resizable')){
-				target.resizable('destroy');
-			}
-		}
-		else if(target.data('ui-resizable')){
-			target.resizable('option', {
-				maxWidth: bounds.width,
-				maxHeight: maxHeight
-			});
-		}
-		else {
-			target.resizable({
-				handles: 'n,e,s,w,se,sw,ne,nw',
-				minWidth: 260,
-				minHeight: 160,
-				maxWidth: bounds.width,
-				maxHeight: maxHeight,
-				start: function(){
-					target.data('desktop-popout-sized', 1);
 					bringPopoutFront(this);
 				},
 				stop: function(){
@@ -553,9 +492,6 @@ resetDesktopPopout = function(item){
 	var wasFloatPopout = target.hasClass('desktop_popout_window') && target.hasClass('float_menu');
 	if(target.data('ui-draggable')){
 		target.draggable('destroy');
-	}
-	if(target.data('ui-resizable')){
-		target.resizable('destroy');
 	}
 	target.removeClass('desktop_popout_window desktop_modal_window');
 	target.removeData('desktop-popout-placed desktop-popout-sized');
@@ -696,7 +632,7 @@ hideOver = function(){
 	$('body').removeClass('room_pass_prompt_open');
 	$('#public_theme_live_style').remove();
 	$('#over_modal').removeClass('effects_modal_backdrop');
-	$('#over_modal_in').removeClass('effects_modal_shell desktop_resizable_window');
+	$('#over_modal_in').removeClass('effects_modal_shell');
 	$('#over_modal_content').removeClass('effects_modal_content_shell');
 	if(!$('#small_modal').is(':visible') && !$('#large_modal').is(':visible')){
 		onScroll();

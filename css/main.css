@@ -805,19 +805,6 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 		display:none !important;
 	}
 }
-.desktop_popout_window .ui-resizable-handle,
-.desktop_modal_window .ui-resizable-handle {
-	z-index:25 !important;
-}
-.desktop_popout_window .ui-resizable-se,
-.desktop_modal_window .ui-resizable-se {
-	right:3px;
-	bottom:3px;
-	width:12px;
-	height:12px;
-	border-right:2px solid rgba(150,150,150,0.5);
-	border-bottom:2px solid rgba(150,150,150,0.5);
-}
 .backglob {backdrop-filter: none !important;} /* Fix for an issue revolving around drag positioning. */
 /* menus positions */
 #private_opt { position:absolute; right:0; top:0; margin:5px; z-index:40; display:none; }
@@ -1242,6 +1229,102 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 .avatar_private { display:block; height:26px; width:26px; border-radius:18px; overflow:hidden; }
 .private_logs .chat_image { height:70px; max-width:100%; }
 .private_logs .sticker_chat { height:70px; max-width:100%; }
+.multi_private_window {
+	position:fixed;
+	width:320px;
+	height:420px;
+	max-width:calc(100vw - 16px);
+	max-height:calc(100vh - 16px);
+	display:flex;
+	flex-direction:column;
+	border-radius:8px;
+	overflow:hidden;
+}
+.multi_private_top {
+	flex:0 0 42px;
+	display:flex;
+	align-items:center;
+	gap:8px;
+	padding:6px 8px;
+	cursor:move;
+}
+.multi_private_avatar {
+	width:30px;
+	height:30px;
+	border-radius:50%;
+	display:block;
+	cursor:pointer;
+}
+.multi_private_name {
+	flex:1 1 auto;
+	min-width:0;
+	font-weight:bold;
+}
+.multi_private_min,
+.multi_private_close {
+	width:28px;
+	height:28px;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	padding:0;
+	border:0;
+	border-radius:50%;
+	color:inherit;
+	background:transparent;
+	cursor:pointer;
+}
+.multi_private_min:hover,
+.multi_private_close:hover {
+	background:rgba(150,150,150,0.18);
+}
+.multi_private_logs {
+	position:relative;
+	flex:1 1 auto;
+	min-height:0;
+	overflow:auto;
+	padding:0 8px;
+}
+.multi_private_list {
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+.multi_private_spinner {
+	position:absolute;
+	left:0;
+	right:0;
+	top:50%;
+	transform:translateY(-50%);
+}
+.multi_private_form {
+	flex:0 0 auto;
+	display:flex;
+	align-items:center;
+	gap:6px;
+	padding:8px;
+}
+.multi_private_input {
+	flex:1 1 auto;
+	min-width:0;
+	height:34px;
+	border:0;
+	outline:0;
+	background:transparent;
+	color:inherit;
+}
+.multi_private_minimized {
+	height:42px;
+}
+.multi_private_minimized .multi_private_logs,
+.multi_private_minimized .multi_private_form {
+	display:none;
+}
+@media screen and (max-width: 768px){
+	.multi_private_window {
+		display:none;
+	}
+}
 .ticker { display:table-cell; vertical-align:bottom; padding:0 4px 12px 4px; width:26px; }
 .ticker img { width:18px; height:18px; border-radius:50%; }
 .priwrap { display:table-cell; }

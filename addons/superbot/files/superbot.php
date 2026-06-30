@@ -1,12 +1,16 @@
 <?php if(boomAllow($addons['addons_access'])){ ?>
 <script data-cfasync="false">
 var requestType = 'reg';
-var superbot = '<?php echo $addons['bot_name']; ?>';
-var superLow = '<?php echo strtolower($addons['bot_name']); ?>';
-var superbotId = '<?php echo $addons['bot_id']; ?>';
+var superbot = <?php echo json_encode($addons['bot_name']); ?>;
+var superLow = superbot.toLowerCase();
+var superbotId = '<?php echo (int) $addons['bot_id']; ?>';
 var checkbot = '';
 var privBot = '';
 
+superbotMentioned = function(message){
+	var text = message.toLowerCase();
+	return text.indexOf(superLow) !== -1 || text.indexOf('superbot') !== -1;
+};
 sendSuperbotMain = function(){
 	$.post('addons/superbot/system/superbot_main.php', { 
 		search: checkbot,
@@ -30,8 +34,7 @@ $(document).ready(function(){
 
 	$('#main_input').submit(function(event){
 		checkbot = $('#content').val();
-		var checkbotLow = $('#content').val().toLowerCase();
-		if( checkbot.match(superbot) || checkbotLow.match(superLow) ){
+		if(superbotMentioned(checkbot)){
 			setTimeout(sendSuperbotMain, 1000);
 		}
 		else {

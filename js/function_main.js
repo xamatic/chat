@@ -1018,6 +1018,208 @@ resetCannotPrivate = () => {
 	}
 }
 
+var multiPrivateWindows = {};
+var multiPrivateZ = 700;
+
+multiPrivateMode = function(){
+	var limit = (typeof menuHide !== 'undefined') ? menuHide : 767;
+	return $(window).width() > limit;
+}
+
+multiPrivateId = function(who){
+	return 'multi_private_' + parseInt(who);
+}
+
+multiPrivateLogId = function(who, logId){
+	return 'mp_' + parseInt(who) + '_priv' + parseInt(logId);
+}
+
+multiPrivateSanitizeLog = function(who, html){
+	var holder = $('<div></div>').html(html);
+	holder.find('[id^="priv"]').each(function(){
+		var raw = ($(this).attr('id') || '').replace('priv', '');
+		$(this).attr('id', multiPrivateLogId(who, raw));
+	});
+	holder.find('#cannot_private').attr('id', 'cannot_private_' + parseInt(who));
+	return holder.html();
+}
+
+multiPrivateLogExists = function(who, logId){
+	return $('#' + multiPrivateLogId(who, logId)).length > 0;
+}
+
+multiPrivateRenderLog = function(who, log){
+	if(log === null || multiPrivateLogExists(who, log.log_id) || ignored(log.user_id)){
+		return '';
+	}
+	return multiPrivateSanitizeLog(who, createPrivateLog(log));
+}
+
+multiPrivateScroll = function(box, force){
+	var body = box.find('.multi_private_logs');
+	if(force || body.attr('data-bottom') == '1'){
+		body.scrollTop(body.prop('scrollHeight'));
+	}
+}
+
+multiPrivateAppend = function(who, logs, force){
+	var box = $('#' + multiPrivateId(who));
+	if(!box.length || !$.isArray(logs)){
+		return;
+	}
+	var html = '';
+	for(var i = 0; i < logs.length; i++){
+		html += multiPrivateRenderLog(who, logs[i]);
+	}
+	if(html !== ''){
+		box.find('.multi_private_list').append(html);
+		triggerLinkedMessageEffects(box.find('.multi_private_list').children().slice(-logs.length));
+		multiPrivateScroll(box, force);
+	}
+}
+
+multiPrivateLoad = function(who, force){
+	var box = $('#' + multiPrivateId(who));
+	if(!box.length){
+		return;
+	}
+	$.ajax({
+		url: "system/action/private_load.php",
+		type: "post",
+		cache: false,
+		timeout: speed,
+		dataType: 'json',
+		data: {
+			target: who,
+		},
+		success: function(response){
+			if(!box.length){
+				return;
+			}
+			if(force){
+				box.find('.multi_private_list').html('');
+			}
+			multiPrivateAppend(who, response, force);
+			box.find('.multi_private_spinner').addClass('hidden');
+		},
+		error: function(){
+			box.find('.multi_private_spinner').addClass('hidden');
+		}
+	});
+}
+
+multiPrivateClose = function(box){
+	var who = parseInt(box.attr('data-user'));
+	if(multiPrivateWindows[who] && multiPrivateWindows[who].timer){
+		clearInterval(multiPrivateWindows[who].timer);
+	}
+	delete multiPrivateWindows[who];
+	if(box.data('ui-draggable')){
+		box.draggable('destroy');
+	}
+	box.remove();
+}
+
+multiPrivateSend = function(box){
+	var who = parseInt(box.attr('data-user'));
+	var input = box.find('.multi_private_input');
+	var message = input.val();
+	if(message == '' || /^\s+$/.test(message)){
+		return false;
+	}
+	input.val('');
+	$.ajax({
+		url: "system/action/private_process.php",
+		type: "post",
+		cache: false,
+		dataType: 'json',
+		data: {
+			target: who,
+			content: message,
+			quote: 0,
+		},
+		success: function(response){
+			if(typeof response == 'object' && response.code == 1 && response.log !== null){
+				multiPrivateAppend(who, [response.log], true);
+				input.focus();
+			}
+			else if(typeof response == 'object' && response.code == 99){
+				box.find('.multi_private_list').append(multiPrivateSanitizeLog(who, cannotPrivateTemplate()));
+				multiPrivateScroll(box, true);
+			}
+		}
+	});
+	return false;
+}
+
+multiPrivatePosition = function(box){
+	var count = $('.multi_private_window').length;
+	var bounds = ($('#global_chat').length) ? $('#global_chat').offset() : { left: 0, top: 0 };
+	var baseLeft = bounds.left + 90 + ((count % 4) * 28);
+	var baseTop = bounds.top + 80 + ((count % 4) * 28);
+	box.css({
+		left: baseLeft,
+		top: baseTop,
+		'z-index': ++multiPrivateZ,
+	});
+}
+
+openMultiPrivate = function(who, whoName, whoAvatar){
+	who = parseInt(who);
+	if(!who || who == user_id){
+		return;
+	}
+	var id = multiPrivateId(who);
+	var box = $('#' + id);
+	if(box.length){
+		box.removeClass('multi_private_minimized').css('z-index', ++multiPrivateZ);
+		box.find('.multi_private_input').focus();
+		return;
+	}
+	box = $(`
+		<div id="${id}" class="multi_private_window back_priv bshadow" data-user="${who}">
+			<div class="multi_private_top back_ptop">
+				<img class="multi_private_avatar get_info" onerror="avFix(this);"/>
+				<div class="multi_private_name bellips"></div>
+				<button type="button" class="multi_private_min" aria-label="Minimize"><i class="fa fa-minus"></i></button>
+				<button type="button" class="multi_private_close" aria-label="Close"><i class="fa fa-times"></i></button>
+			</div>
+			<div class="multi_private_logs" data-bottom="1">
+				<ul class="multi_private_list vpad15"></ul>
+				<div class="multi_private_spinner large_spinner"><i class="fa fa-circle-notch fa-spin fa-fw bspin boom_spinner"></i></div>
+			</div>
+			<form class="multi_private_form back_input">
+				<input class="multi_private_input" maxlength="${typeof system !== 'undefined' && system.max_private ? system.max_private : 500}" autocomplete="off"/>
+				<button class="send_btn" type="submit"><i class="fa fa-paper-plane"></i></button>
+			</form>
+		</div>
+	`);
+	box.find('.multi_private_name').text(whoName);
+	box.find('.multi_private_avatar').attr({
+		'data': who,
+		'src': whoAvatar,
+	});
+	box.find('.multi_private_input').attr('placeholder', $('#message_content').attr('placeholder') || '');
+	($('#global_chat').length ? $('#global_chat') : $('body')).append(box);
+	multiPrivatePosition(box);
+	if($.fn.draggable){
+		box.draggable({
+			handle: '.multi_private_top',
+			containment: getPrivateDragContainment(),
+			start: function(){
+				$(this).css('z-index', ++multiPrivateZ);
+			}
+		});
+	}
+	box.find('.multi_private_input').focus();
+	multiPrivateWindows[who] = {
+		timer: setInterval(function(){
+			multiPrivateLoad(who, false);
+		}, 4500)
+	};
+	multiPrivateLoad(who, true);
+}
+
 privateLock = function(v){
 	$('#private_send, #private_file, #message_content').prop('disabled', true);
 	if ($('#private_file').length){
@@ -4364,7 +4566,45 @@ $(document).ready(function(){
 		var thisPrivate = $(this).attr('data');
 		var thisUser = $(this).attr('value');
 		var thisAvatar = $(this).attr('data-av');
-		openPrivate(thisPrivate, thisUser, thisAvatar);
+		if(multiPrivateMode()){
+			openMultiPrivate(thisPrivate, thisUser, thisAvatar);
+		}
+		else {
+			openPrivate(thisPrivate, thisUser, thisAvatar);
+		}
+	});
+
+	$(document).on('mousedown', '.multi_private_window', function(){
+		$(this).css('z-index', ++multiPrivateZ);
+	});
+
+	$(document).on('submit', '.multi_private_form', function(event){
+		event.preventDefault();
+		multiPrivateSend($(this).closest('.multi_private_window'));
+		return false;
+	});
+
+	$(document).on('click', '.multi_private_close', function(){
+		multiPrivateClose($(this).closest('.multi_private_window'));
+	});
+
+	$(document).on('click', '.multi_private_min', function(){
+		$(this).closest('.multi_private_window').toggleClass('multi_private_minimized');
+	});
+
+	$(document).on('scroll', '.multi_private_logs', function(){
+		var s = $(this).scrollTop();
+		var c = $(this).innerHeight();
+		var d = this.scrollHeight;
+		$(this).attr('data-bottom', (s + c >= d - 80) ? 1 : 0);
+	});
+
+	$(window).on('resize.multiPrivate', function(){
+		if(!multiPrivateMode()){
+			$('.multi_private_window').each(function(){
+				multiPrivateClose($(this));
+			});
+		}
 	});
 	
 	$(document).on('click', '.delete_private', function(){
