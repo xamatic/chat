@@ -733,79 +733,6 @@ input { font-family: sans-serif,'trebuchet ms','lucida grande','lucida sans unic
 .desktop_modal_window > .modal_content {
 	border-radius:inherit;
 }
-.popout_window_controls {
-	position:absolute;
-	left:0;
-	right:0;
-	top:-28px;
-	height:28px;
-	display:flex;
-	align-items:center;
-	justify-content:space-between;
-	padding:0 5px 0 8px;
-	z-index:30;
-	pointer-events:none;
-	color:rgba(255,255,255,0.9);
-}
-.popout_window_controls:before {
-	content:'';
-	position:absolute;
-	inset:0;
-	border-radius:8px 8px 0 0;
-	border-bottom:1px solid rgba(255,255,255,0.14);
-	background:rgba(28,42,64,0.95);
-	box-shadow:0 8px 18px rgba(0,0,0,0.2);
-	pointer-events:none;
-}
-.popout_window_grip {
-	flex:1;
-	height:100%;
-	display:flex;
-	align-items:center;
-	cursor:move;
-	opacity:0.72;
-	position:relative;
-	z-index:1;
-	pointer-events:auto;
-}
-.popout_window_grip i {
-	font-size:13px;
-}
-.popout_window_close {
-	width:22px;
-	height:22px;
-	display:flex;
-	align-items:center;
-	justify-content:center;
-	padding:0;
-	border:0;
-	border-radius:50%;
-	color:inherit;
-	background:transparent;
-	cursor:pointer;
-	position:relative;
-	z-index:1;
-	pointer-events:auto;
-}
-.popout_window_close:hover {
-	background:rgba(150,150,150,0.18);
-}
-@media screen and (min-width: 769px){
-	.desktop_popout_window .float_top .ftop_opt_btn.show_menu,
-	.desktop_popout_window .float_ctop .ftop_opt_btn.show_menu,
-	.desktop_popout_window .hide_menu,
-	.desktop_popout_window #reaction_picker_close,
-	.desktop_modal_window > .modal_close,
-	.desktop_modal_window .modal_top_item.cancel_modal,
-	.desktop_modal_window .modal_top_item.cancel_over,
-	.desktop_modal_window .modal_top_item.cancel_top,
-	.desktop_modal_window .modal_top_item.close_modal,
-	.desktop_modal_window .modal_top_item.close_over,
-	.desktop_modal_window .modal_top_item.close_top {
-		display:none !important;
-	}
-}
-.backglob {backdrop-filter: none !important;} /* Fix for an issue revolving around drag positioning. */
 /* menus positions */
 #private_opt { position:absolute; right:0; top:0; margin:5px; z-index:40; display:none; }
 #page_main_menu { position:fixed; right:0; z-index:202;  top:50px; margin:5px; display:none; }
@@ -2621,7 +2548,7 @@ canvas#view { width: 100%; height: 100%; display:block; }
 	box-shadow:0 16px 32px rgba(0,0,0,0.35);
 }
 .desktop_modal_window.effects_modal_shell {
-	border-radius:0 0 8px 8px;
+	border-radius:8px;
 }
 .effects_modal_content_shell {
 	height:100%;

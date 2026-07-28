@@ -353,13 +353,11 @@ $(document).ready(function(){
 			positionLogMenuAtClick(e);
 		}
 		
-		if(!desktopPopoutMode()){
-			$(document).off('click.logmenuClose').one('click.logmenuClose', function(ev){
-				if(!$(ev.target).closest('#log_menu, .log_content').length){
-					resetLogMenu();
-				}
-			});
-		}
+		$(document).off('click.logmenuClose').one('click.logmenuClose', function(ev){
+			if(!$(ev.target).closest('#log_menu, .log_content').length){
+				resetLogMenu();
+			}
+		});
 	});
 	
 	$(document).on('mouseenter', '#private_content .outpriv', function(){		
@@ -379,17 +377,12 @@ $(document).ready(function(){
 	});
 
 	$(document).on('mouseleave', '#log_menu', function(){
-		if(!desktopPopoutMode()){
-			resetLogMenu();
-		}
+		resetLogMenu();
 	});
 
 	$(document).click(function(e){
-		var container = $(".avtrig");
-		if(!desktopPopoutMode() && !$(e.target).hasClass('avtrig')){
-			if (!container.is(e.target) && container.has(e.target).length === 0){
-					resetAvMenu();
-			}
+		if(!$(e.target).closest('#av_menu, .avtrig').length){
+			resetAvMenu();
 		}
 	});
 

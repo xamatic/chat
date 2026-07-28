@@ -304,28 +304,9 @@ popoutBounds = function(){
 		height: $(window).height()
 	};
 }
-popoutChromeHeight = function(item){
-	var target = $(item);
-	if(target.hasClass('desktop_popout_window') || target.hasClass('desktop_modal_window') || target.children('.popout_window_controls').length){
-		return 28;
-	}
-	return 0;
-}
-popoutContainment = function(item){
-	var bounds = popoutBounds();
-	return [bounds.left, bounds.top + popoutChromeHeight(item), bounds.right, bounds.bottom];
-}
 bringPopoutFront = function(item){
 	var layer = $(item).hasClass('modal_in') ? ++desktopModalZ : ++desktopPopoutZ;
 	$(item).css('z-index', layer);
-}
-addPopoutBar = function(item){
-	var target = $(item);
-	target.children('.popout_window_bar').remove();
-	if(target.children('.popout_window_controls').length){
-		return;
-	}
-	target.append('<div class="popout_window_controls"><div class="popout_window_grip" title="Move window"><i class="fa fa-grip-lines"></i></div><button type="button" class="popout_window_close" aria-label="Close"><i class="fa fa-times"></i></button></div>');
 }
 clampPopoutPosition = function(item){
 	var target = $(item);
@@ -333,13 +314,12 @@ clampPopoutPosition = function(item){
 		return;
 	}
 	var bounds = popoutBounds();
-	var chromeHeight = popoutChromeHeight(target);
 	var width = target.outerWidth();
 	var height = target.outerHeight();
 	var offset = target.offset() || { left: bounds.left, top: bounds.top };
 	var left = offset.left;
 	var top = offset.top;
-	var minTop = bounds.top + chromeHeight;
+	var minTop = bounds.top;
 	var maxLeft = Math.max(bounds.left, bounds.right - width);
 	var maxTop = Math.max(minTop, bounds.bottom - height);
 	if(left < bounds.left){
@@ -386,7 +366,6 @@ activateDesktopPopout = function(item){
 		resetDesktopPopout(target);
 		return;
 	}
-	addPopoutBar(target);
 	target.addClass('desktop_popout_window');
 	if(target.hasClass('float_menu')){
 		target.css('display', 'flex');
@@ -397,31 +376,12 @@ activateDesktopPopout = function(item){
 	placePopoutForDesktop(target);
 	bringPopoutFront(target);
 	var bounds = popoutBounds();
-	var chromeHeight = popoutChromeHeight(target);
 	var maxWidth = Math.max(220, bounds.width);
-	var maxHeight = Math.max(120, bounds.height - chromeHeight);
+	var maxHeight = Math.max(120, bounds.height);
 	target.css({
 		'max-width': maxWidth,
 		'max-height': maxHeight
 	});
-	if($.fn.draggable){
-		if(target.data('ui-draggable')){
-			target.draggable('option', 'containment', popoutContainment(target));
-		}
-		else {
-			target.draggable({
-				handle: '.popout_window_grip',
-				containment: popoutContainment(target),
-				cancel: 'input, textarea, select, button, a',
-				start: function(){
-					bringPopoutFront(this);
-				},
-				stop: function(){
-					clampPopoutPosition(this);
-				}
-			});
-		}
-	}
 }
 centerDesktopModal = function(item){
 	var target = $(item);
@@ -453,7 +413,6 @@ activateDesktopModal = function(item){
 	if(!target.length || !target.is(':visible')){
 		return;
 	}
-	addPopoutBar(target);
 	target.addClass('desktop_modal_window');
 	if(!target.data('desktop-popout-sized')){
 		target.css('width', '');
@@ -462,40 +421,17 @@ activateDesktopModal = function(item){
 	centerDesktopModal(target);
 	bringPopoutFront(target);
 	var bounds = popoutBounds();
-	var chromeHeight = popoutChromeHeight(target);
-	var maxHeight = Math.max(160, bounds.height - chromeHeight);
+	var maxHeight = Math.max(160, bounds.height);
 	target.css({
 		'max-width': bounds.width,
 		'max-height': maxHeight
 	});
-	if($.fn.draggable){
-		if(target.data('ui-draggable')){
-			target.draggable('option', 'containment', popoutContainment(target));
-		}
-		else {
-			target.draggable({
-				handle: '.popout_window_grip',
-				containment: popoutContainment(target),
-				cancel: 'input, textarea, select, button, a',
-				start: function(){
-					bringPopoutFront(this);
-				},
-				stop: function(){
-					clampPopoutPosition(this);
-				}
-			});
-		}
-	}
 }
 resetDesktopPopout = function(item){
 	var target = $(item);
 	var wasFloatPopout = target.hasClass('desktop_popout_window') && target.hasClass('float_menu');
-	if(target.data('ui-draggable')){
-		target.draggable('destroy');
-	}
 	target.removeClass('desktop_popout_window desktop_modal_window');
 	target.removeData('desktop-popout-placed desktop-popout-sized');
-	target.children('.popout_window_bar, .popout_window_controls').remove();
 	target.css({
 		left: '',
 		top: '',
@@ -1221,40 +1157,6 @@ $(document).ready(function(){
 
 	$(document).on('mousedown', '.desktop_popout_window, .desktop_modal_window', function(){
 		bringPopoutFront(this);
-	});
-
-	$(document).on('click', '.popout_window_close', function(e){
-		e.preventDefault();
-		e.stopPropagation();
-		var target = $(this).closest('.desktop_popout_window, .desktop_modal_window');
-		var id = target.attr('id');
-		if(id == 'av_menu' && typeof resetAvMenu === 'function'){
-			resetAvMenu();
-		}
-		else if(id == 'log_menu' && typeof resetLogMenu === 'function'){
-			resetLogMenu();
-		}
-		else if(id == 'reaction_picker_menu' && typeof closeReactionMenu === 'function'){
-			closeReactionMenu();
-		}
-		else if(target.hasClass('modal_in')){
-			var wrap = target.closest('.modal_back');
-			if(wrap.attr('id') == 'small_modal' || wrap.attr('id') == 'large_modal'){
-				hideModal();
-			}
-			else if(wrap.attr('id') == 'over_modal' || wrap.attr('id') == 'over_emodal'){
-				hideOver();
-			}
-			else if(wrap.attr('id') == 'top_modal'){
-				hideTop();
-			}
-			else {
-				wrap.hide();
-			}
-		}
-		else {
-			target.hide();
-		}
 	});
 
 	$(window).on('resize.desktopPopouts', function(){

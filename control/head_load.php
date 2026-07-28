@@ -49,7 +49,7 @@ if(boomLogged() && !boomAllow($page['page_rank'])){
 <script data-cfasync="false" src="js/jqueryui/jquery-ui.min.js<?php echo $bbfv; ?>"></script>
 <script data-cfasync="false" src="js/jqueryui/jquery_ui_punch.js<?php echo $bbfv; ?>"></script>
 <script data-cfasync="false" src="js/global.min.js<?php echo $bbfv; ?>"></script>
-<script data-cfasync="false" src="js/function_split.js<?php echo $bbfv; ?>"></script>
+<script data-cfasync="false" src="js/function_split.js<?php echo $bbfv . $cache_force; ?>"></script>
 <script data-cfasync="false" src="js/yall/yall.js<?php echo $bbfv; ?>"></script>
 <?php if(boomLogged() && useApp()){ ?>
 <link rel="manifest" href="js/pwa/manifest.json<?php echo $bbfv; ?>">
